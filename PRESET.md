@@ -27,7 +27,7 @@ Last updated: 2026-07-04 (initial scaffold defaults, not yet customized).
 1. `pnpm preset:open` (or open the URL above) to load the current preset in the official builder.
 2. Edit any of the 10 catalog dimensions (style, colors, fonts, icon library, radius, menu accent/color).
 3. Copy the new preset code from the builder.
-4. `pnpm dlx shadcn@latest apply <code>` to reinstall components with the new combo. This is always safe: `components/ui` never carries local edits (catalog-first regime), so reinstalling never loses work.
+4. `pnpm dlx shadcn@latest apply <code>` to reinstall components with the new combo. This is always safe for `components/ui` (catalog-first regime, no local edits there). It also rewrites `app/layout.tsx` and re-adds the catalog font (Geist) import, reverting the Saans dogfooding - re-apply the Saans font swap (drop the Geist import, import `./font-saans.css`, keep `font-sans` on the html className) after every `apply`.
 5. Check `/components` and `/blocks` in the dev server, in both light and dark mode.
 6. `pnpm preset:resolve` and update the table above with the new code, dimensions, and today's date.
 7. Commit with a message describing what changed (e.g. `feat: switch preset to <style>/<radius>`).
