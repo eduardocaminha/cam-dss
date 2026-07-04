@@ -1,0 +1,12 @@
+@font-face {
+  font-family: "Saans";
+  src: url("/fonts/SaansVF.woff2") format("woff2-variations");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-sans: "Saans", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
+}

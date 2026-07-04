@@ -34,3 +34,7 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Saans font binary: licensed, never redistributed to third parties. Synced
+# locally via scripts/sync-font.mjs from the private cam-profile repo.
+/public/fonts/SaansVF.woff2
