@@ -23,7 +23,11 @@ export default function ComponentsPage() {
               {entry.title}
             </h2>
             {entry.fullBleed ? (
-              <div className="h-[600px] overflow-hidden">
+              // contain: paint establishes a containing block for the
+              // example's position:fixed children (shadcn's Sidebar panel
+              // is fixed-positioned) - without it, the sidebar escapes this
+              // box and pins itself to the viewport as the page scrolls.
+              <div className="h-[600px] overflow-hidden" style={{ contain: "paint" }}>
                 <entry.Component />
               </div>
             ) : (
