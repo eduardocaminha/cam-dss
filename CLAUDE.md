@@ -21,6 +21,19 @@ Personal shadcn/ui design system. See `README.md` for structure and
   `@/lib/ai` and `@/components/message-parts`, which the registry does not
   declare or provide. The `message`/`bubble` ui primitives are still
   installed under `components/ui`.
+- The calendar example (`components/calendar-example.tsx` ->
+  `components/ui/calendar.tsx`, stock react-day-picker) throws a hydration
+  mismatch warning in the browser console on `/components`: the server
+  renders the month dropdown label in one locale format (e.g. "Jan") and
+  the client re-renders it in another (e.g. "jan."), because `Intl`
+  resolves a different locale server-side (Node process) vs client-side
+  (browser). Non-fatal - React regenerates that subtree and the page
+  still works - and entirely inside stock code, so not something to patch
+  here.
+- `public/avatars/shadcn.jpg` is a generated placeholder (flat gray
+  square), not a real photo. Several stock blocks (dashboard-01,
+  sidebar-07/08/09/12/15/16) hardcode this path and the registry never
+  ships an actual image for it.
 
 ## Tooling scope
 
