@@ -4,23 +4,25 @@ The current design system preset, resolved from this project via `pnpm preset:re
 
 | Dimension | Value |
 |---|---|
-| code | `b2fA` |
+| code | `b2vg` |
 | style | nova |
 | baseColor | neutral |
 | theme | neutral |
 | chartColor | neutral |
 | iconLibrary | lucide |
-| font | geist |
+| font | geist-mono (misreported, see caveat below - actual body font is Saans) |
 | fontHeading | inherit |
 | radius | default |
 | menuAccent | subtle |
 | menuColor | default |
 
-URL: https://ui.shadcn.com/create?preset=b2fA
+URL: https://ui.shadcn.com/create?preset=b2vg
 
 Base (not encoded in the preset code, set separately in `components.json`): `base`.
 
 Last updated: 2026-07-04 (initial scaffold defaults, not yet customized).
+
+**Caveat - font detection is unreliable after the Saans dogfood:** `preset resolve`/`preset:open` infer the `font`/`fontHeading` dimensions by scanning the codebase for `next/font/google` imports. Since Saans is applied via `font-saans.css` (a plain CSS `@font-face`, not a `next/font` import) rather than the catalog mechanism, the resolver can't see it - it instead picks up `Geist_Mono` (kept in `app/layout.tsx` for code blocks) and misreports it as the primary font. Verified end-to-end: opening `https://ui.shadcn.com/create?preset=b2vg` in a real browser does load this project's actual style/baseColor/theme/chartColor/iconLibrary/radius correctly, but shows "Geist Mono" for both Heading and Font instead of Saans. Round-trip works; font dimension specifically does not reflect reality for this project.
 
 ## Editing loop
 
