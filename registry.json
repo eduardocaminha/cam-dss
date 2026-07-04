@@ -1,0 +1,26 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "cam-dss",
+  "homepage": "https://github.com/eduardocaminha/cam-dss",
+  "items": [
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "font-saans",
+      "type": "registry:file",
+      "title": "Saans",
+      "description": "CSS wiring for the Saans variable font (cam brand identity). The font binary itself is licensed and not distributed here - source it from the private eduardocaminha/cam-profile repo (scripts/sync-font.mjs) and place it at public/fonts/SaansVF.woff2.",
+      "files": [
+        {
+          "path": "app/font-saans.css",
+          "type": "registry:file",
+          "target": "app/font-saans.css"
+        }
+      ],
+      "cssVars": {
+        "theme": {
+          "font-sans": "'Saans', ui-sans-serif, system-ui, sans-serif"
+        }
+      }
+    }
+  ]
+}
