@@ -34,6 +34,18 @@ Personal shadcn/ui design system. See `README.md` for structure and
   square), not a real photo. Several stock blocks (dashboard-01,
   sidebar-07/08/09/12/15/16) hardcode this path and the registry never
   ships an actual image for it.
+- Every page logs a console warning on first load: "Encountered a script
+  tag while rendering React component", pointing at `next-themes`'
+  `ThemeProvider` (`components/theme-provider.tsx`). `next-themes` injects
+  an inline `<script>` via `React.createElement` to set the theme class
+  before hydration (avoids a flash of the wrong theme); React 19 warns on
+  any `<script>` rendered inside a component. Confirmed false positive -
+  the script still runs correctly and dark mode works - tracked upstream:
+  [shadcn-ui/ui#10104](https://github.com/shadcn-ui/ui/issues/10104),
+  [pacocoursey/next-themes#387](https://github.com/pacocoursey/next-themes/issues/387).
+  Not patched here: silencing it would require either filtering
+  `console.error` (masks real errors) or replacing `next-themes`, neither
+  warranted for a dev-only cosmetic warning.
 
 ## Tooling scope
 
