@@ -9,7 +9,11 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "preset:resolve": "shadcn preset resolve",
+    "preset:url": "shadcn preset url",
+    "preset:open": "shadcn preset open",
+    "registry:validate": "shadcn registry validate"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
