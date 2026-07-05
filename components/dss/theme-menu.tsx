@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { PaletteIcon, LoaderCircleIcon } from "lucide-react"
+import { PaletteIcon, LoaderCircleIcon, RotateCcwIcon } from "lucide-react"
 import type { PresetConfig } from "shadcn/preset"
 
 import { Button } from "@/components/ui/button"
@@ -18,7 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { applyThemeDimension } from "@/lib/theme-actions"
+import { Separator } from "@/components/ui/separator"
+import { applyThemeDimension, resetTheme } from "@/lib/theme-actions"
 import { formatSlug, themeDimensions } from "@/lib/theme-dimensions"
 
 export function ThemeMenu({
@@ -38,6 +39,18 @@ export function ThemeMenu({
         setValues(result.values)
       } else {
         setError(`${key}: ${result.error}`)
+      }
+    })
+  }
+
+  function handleReset() {
+    setError(null)
+    startTransition(async () => {
+      const result = await resetTheme()
+      if (result.success) {
+        setValues(result.values)
+      } else {
+        setError(`reset: ${result.error}`)
       }
     })
   }
@@ -83,6 +96,16 @@ export function ThemeMenu({
               </Select>
             </div>
           ))}
+          <Separator />
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={isPending}
+            onClick={handleReset}
+          >
+            <RotateCcwIcon />
+            Reset to default
+          </Button>
         </div>
       </PopoverContent>
     </Popover>

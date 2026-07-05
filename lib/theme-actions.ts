@@ -3,7 +3,12 @@
 import { execFile } from "node:child_process"
 import { promisify } from "node:util"
 
-import { PRESET_BASE_COLORS, encodePreset, type PresetConfig } from "shadcn/preset"
+import {
+  DEFAULT_PRESET_CONFIG,
+  PRESET_BASE_COLORS,
+  encodePreset,
+  type PresetConfig,
+} from "shadcn/preset"
 
 const execFileAsync = promisify(execFile)
 const SHADCN_BIN = "node_modules/.bin/shadcn"
@@ -58,63 +63,77 @@ export type ApplyThemeResult =
   | { success: true; code: string; values: PresetConfig }
   | { success: false; error: string }
 
+async function applyPresetValues(
+  nextValues: PresetConfig
+): Promise<ApplyThemeResult> {
+  try {
+    const code = encodePreset(nextValues)
+
+    await execFileAsync(SHADCN_BIN, ["apply", code, "-y"])
+    // apply rewrites app/layout.tsx, re-adding the catalog Geist font
+    // import and dropping the Saans dogfood. Restore the committed
+    // version - safe only because that file's dogfooded state is
+    // always what's committed at HEAD (see CLAUDE.md).
+    //
+    // apply appears to have some file writes that land after its own
+    // process resolves (observed: heavier changesets, e.g. a style
+    // switch touching 48 files, can still show the Geist diff right
+    // after this checkout ran and returned successfully). Verify the
+    // file is actually clean afterward and retry a few times.
+    for (let attempt = 0; attempt < 5; attempt++) {
+      await execFileAsync("git", ["checkout", "--", "app/layout.tsx"])
+      try {
+        await execFileAsync("git", ["diff", "--quiet", "--", "app/layout.tsx"])
+        break
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 200))
+      }
+    }
+
+    return { success: true, code, values: nextValues }
+  } catch (err) {
+    return { success: false, error: errorMessage(err) }
+  }
+}
+
 export async function applyThemeDimension(
   key: keyof PresetConfig,
   value: string
 ): Promise<ApplyThemeResult> {
   return serialize(async () => {
-    try {
-      const current = await getCurrentTheme()
-      const nextValues = { ...current.values, [key]: value } as PresetConfig
+    const current = await getCurrentTheme()
+    const nextValues = { ...current.values, [key]: value } as PresetConfig
 
-      // Whichever of the three is changed to an achromatic value,
-      // propagate it to the other two IF they are also currently
-      // achromatic (a color, e.g. theme=blue, is always independently
-      // valid and is left untouched).
+    // Whichever of the three is changed to an achromatic value,
+    // propagate it to the other two IF they are also currently
+    // achromatic (a color, e.g. theme=blue, is always independently
+    // valid and is left untouched).
+    if (
+      (key === "baseColor" || key === "theme" || key === "chartColor") &&
+      ACHROMATIC_VALUES.has(value)
+    ) {
+      if (ACHROMATIC_VALUES.has(nextValues.baseColor)) {
+        nextValues.baseColor = value as PresetConfig["baseColor"]
+      }
+      if (ACHROMATIC_VALUES.has(nextValues.theme)) {
+        nextValues.theme = value as PresetConfig["theme"]
+      }
       if (
-        (key === "baseColor" || key === "theme" || key === "chartColor") &&
-        ACHROMATIC_VALUES.has(value)
+        nextValues.chartColor &&
+        ACHROMATIC_VALUES.has(nextValues.chartColor)
       ) {
-        if (ACHROMATIC_VALUES.has(nextValues.baseColor)) {
-          nextValues.baseColor = value as PresetConfig["baseColor"]
-        }
-        if (ACHROMATIC_VALUES.has(nextValues.theme)) {
-          nextValues.theme = value as PresetConfig["theme"]
-        }
-        if (
-          nextValues.chartColor &&
-          ACHROMATIC_VALUES.has(nextValues.chartColor)
-        ) {
-          nextValues.chartColor = value as PresetConfig["chartColor"]
-        }
+        nextValues.chartColor = value as PresetConfig["chartColor"]
       }
-
-      const code = encodePreset(nextValues)
-
-      await execFileAsync(SHADCN_BIN, ["apply", code, "-y"])
-      // apply rewrites app/layout.tsx, re-adding the catalog Geist font
-      // import and dropping the Saans dogfood. Restore the committed
-      // version - safe only because that file's dogfooded state is
-      // always what's committed at HEAD (see CLAUDE.md).
-      //
-      // apply appears to have some file writes that land after its own
-      // process resolves (observed: heavier changesets, e.g. a style
-      // switch touching 48 files, can still show the Geist diff right
-      // after this checkout ran and returned successfully). Verify the
-      // file is actually clean afterward and retry a few times.
-      for (let attempt = 0; attempt < 5; attempt++) {
-        await execFileAsync("git", ["checkout", "--", "app/layout.tsx"])
-        try {
-          await execFileAsync("git", ["diff", "--quiet", "--", "app/layout.tsx"])
-          break
-        } catch {
-          await new Promise((resolve) => setTimeout(resolve, 200))
-        }
-      }
-
-      return { success: true, code, values: nextValues }
-    } catch (err) {
-      return { success: false, error: errorMessage(err) }
     }
+
+    return applyPresetValues(nextValues)
   })
+}
+
+// Resets to shadcn/preset's own DEFAULT_PRESET_CONFIG (style: nova,
+// baseColor/theme/chartColor: neutral, radius: default, ...) - the
+// package's well-defined factory default, matching this project's
+// documented baseline in PRESET.md.
+export async function resetTheme(): Promise<ApplyThemeResult> {
+  return serialize(() => applyPresetValues(DEFAULT_PRESET_CONFIG))
 }
