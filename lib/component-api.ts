@@ -42,6 +42,51 @@ export function getComponentApi(slug: string): ComponentApiEntry[] {
     return null
   }
 
+  // Many components (Avatar, Card, Select, Switch, Sheet, Carousel, ...)
+  // don't use cva at all - their own extra props (size, side, orientation,
+  // align) are typed as a plain string-literal union in the function's
+  // parameter type, e.g. `{...}: Primitive.Props & { size?: "sm" | "lg" }`.
+  // Only the shadcn-authored intersection member is a TypeLiteral we can
+  // walk here; the imported primitive's own props are an opaque type
+  // reference, so this naturally never pulls in noise from Base UI itself.
+  function collectInlineUnionProps(typeNode: ts.TypeNode) {
+    const literals: ts.TypeLiteralNode[] = ts.isTypeLiteralNode(typeNode)
+      ? [typeNode]
+      : ts.isIntersectionTypeNode(typeNode)
+        ? typeNode.types.filter((t): t is ts.TypeLiteralNode =>
+            ts.isTypeLiteralNode(t)
+          )
+        : []
+
+    for (const literal of literals) {
+      for (const member of literal.members) {
+        if (
+          !ts.isPropertySignature(member) ||
+          !member.type ||
+          !ts.isIdentifier(member.name) ||
+          seenProps.has(member.name.text)
+        ) {
+          continue
+        }
+
+        if (!ts.isUnionTypeNode(member.type)) continue
+
+        const values = member.type.types
+          .map((t) =>
+            ts.isLiteralTypeNode(t) && ts.isStringLiteral(t.literal)
+              ? t.literal.text
+              : null
+          )
+          .filter((v): v is string => !!v)
+
+        if (values.length === member.type.types.length && values.length > 0) {
+          seenProps.add(member.name.text)
+          entries.push({ prop: member.name.text, values })
+        }
+      }
+    }
+  }
+
   function visit(node: ts.Node) {
     if (
       ts.isCallExpression(node) &&
@@ -80,6 +125,23 @@ export function getComponentApi(slug: string): ComponentApiEntry[] {
         }
       }
     }
+
+    if (
+      ts.isFunctionDeclaration(node) &&
+      node.parameters.length > 0 &&
+      node.parameters[0].type
+    ) {
+      collectInlineUnionProps(node.parameters[0].type)
+    }
+
+    // Some components (Carousel, NativeSelect) name their props type
+    // instead of inlining it in the function signature - e.g.
+    // `type CarouselProps = { orientation?: "horizontal" | "vertical" }`
+    // referenced elsewhere by name. Walk type alias declarations too.
+    if (ts.isTypeAliasDeclaration(node)) {
+      collectInlineUnionProps(node.type)
+    }
+
     ts.forEachChild(node, visit)
   }
 
