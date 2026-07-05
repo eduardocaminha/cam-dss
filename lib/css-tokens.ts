@@ -22,6 +22,37 @@ export const RADIUS_STEPS: CssRadiusStep[] = [
   { name: "4xl", className: "rounded-4xl" },
 ]
 
+export type CssSpacingStep = {
+  multiplier: number
+  className: string
+  value: string
+}
+
+/**
+ * className is a full literal string (not built via template string)
+ * because Tailwind's scanner only generates utilities for class names
+ * it finds as complete text in a scanned file - a computed `w-${n}`
+ * never appears in source as a whole token, so it would silently
+ * produce no CSS.
+ */
+const SPACING_STEPS: { multiplier: number; className: string }[] = [
+  { multiplier: 1, className: "w-1" },
+  { multiplier: 2, className: "w-2" },
+  { multiplier: 3, className: "w-3" },
+  { multiplier: 4, className: "w-4" },
+  { multiplier: 6, className: "w-6" },
+  { multiplier: 8, className: "w-8" },
+  { multiplier: 12, className: "w-12" },
+  { multiplier: 16, className: "w-16" },
+  { multiplier: 24, className: "w-24" },
+]
+
+export type CssFontToken = {
+  name: string
+  className: string
+  value: string
+}
+
 /**
  * Brace-matched (not regex-only) block extraction, since a naive
  * greedy/non-greedy regex between "selector {" and the next "}" breaks
@@ -55,6 +86,23 @@ function extractVars(block: string): Map<string, string> {
 }
 
 /**
+ * Tailwind v4's own default --spacing, from the tailwindcss package's
+ * theme.css - this project's globals.css never overrides it, so the
+ * real base unit lives in the dependency, not here. Not read from disk
+ * at request time: tailwindcss doesn't declare "./theme.css" in its
+ * package.json "exports", so plain Node `require.resolve` finds it but
+ * Turbopack's server bundler refuses to - confirmed by hitting
+ * "could not resolve tailwindcss/theme.css into a module" in dev.
+ * Verified once by hand (installed tailwindcss@4.3.2/theme.css) instead.
+ */
+const TAILWIND_DEFAULT_SPACING = "0.25rem"
+
+function remToNumber(value: string): number {
+  const match = /([\d.]+)rem/.exec(value)
+  return match ? parseFloat(match[1]) : 0
+}
+
+/**
  * Parses app/globals.css's :root/.dark blocks - the same file the
  * theme menu's Server Actions mutate via `shadcn apply` - so the
  * /tokens tab always reflects whatever preset is currently applied,
@@ -63,12 +111,15 @@ function extractVars(block: string): Map<string, string> {
 export function getCssTokens(): {
   colors: CssColorToken[]
   radiusBase: string
+  spacing: { base: string; steps: CssSpacingStep[] }
+  fonts: CssFontToken[]
 } {
   const filePath = path.join(process.cwd(), "app/globals.css")
   const source = fs.readFileSync(filePath, "utf8")
 
   const lightVars = extractVars(extractBlock(source, ":root"))
   const darkVars = extractVars(extractBlock(source, ".dark"))
+  const themeVars = extractVars(extractBlock(source, "@theme inline"))
 
   const colors: CssColorToken[] = []
   for (const [name, light] of lightVars) {
@@ -76,5 +127,34 @@ export function getCssTokens(): {
     colors.push({ name, light, dark: darkVars.get(name) ?? light })
   }
 
-  return { colors, radiusBase: lightVars.get("radius") ?? "" }
+  const spacingBaseRem = remToNumber(TAILWIND_DEFAULT_SPACING)
+  const spacing = {
+    base: TAILWIND_DEFAULT_SPACING,
+    steps: SPACING_STEPS.map((step) => ({
+      ...step,
+      value: `${spacingBaseRem * step.multiplier}rem`,
+    })),
+  }
+
+  const saansPath = path.join(process.cwd(), "app/font-saans.css")
+  const saansVars = extractVars(
+    extractBlock(fs.readFileSync(saansPath, "utf8"), ":root")
+  )
+  const fontSans = saansVars.get("font-sans") ?? ""
+
+  const fonts: CssFontToken[] = [
+    { name: "--font-sans", className: "font-sans", value: fontSans },
+    {
+      name: "--font-heading",
+      className: "font-heading",
+      value: `${themeVars.get("font-heading") ?? ""} → ${fontSans}`,
+    },
+    {
+      name: "--font-mono",
+      className: "font-mono",
+      value: "Geist Mono (next/font/google, set on <html> in app/layout.tsx)",
+    },
+  ]
+
+  return { colors, radiusBase: lightVars.get("radius") ?? "", spacing, fonts }
 }

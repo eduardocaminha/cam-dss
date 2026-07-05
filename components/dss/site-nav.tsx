@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils"
 
 const links = [
   { href: "/components", label: "Components" },
-  { href: "/blocks", label: "Blocks" },
   { href: "/tokens", label: "Tokens" },
+  { href: "/blocks", label: "Blocks" },
 ]
 
 export function SiteNav() {
