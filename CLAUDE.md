@@ -78,16 +78,6 @@ Personal shadcn/ui design system. See `README.md` for structure and
   full pattern (`style-[a-z]+:(rounded-|border|gap-)`) across every
   `*-example.tsx` when auditing this, not just the ones already known to
   be broken - it's a per-occurrence bug, not a per-file one.
-- `accordion-example.tsx`'s "With Borders" example is the one deliberate
-  exception to the fix above: instead of unlocking style-nova's own
-  boxed-cards-with-gap treatment, it was rewritten to match the plain
-  canonical example from ui.shadcn.com/docs/components/base/accordion
-  (single `rounded-lg border` around the whole `Accordion`, items
-  separated by `border-b last:border-b-0`, no gap) - Eduardo's explicit
-  choice after seeing both side by side. The style-nova classes this
-  replaced weren't wrong, just a different stock design (the 8-style
-  catalog's own take on "borders"); this file now intentionally diverges
-  from that catalog design for this one example.
 
 ## Theme menu
 
