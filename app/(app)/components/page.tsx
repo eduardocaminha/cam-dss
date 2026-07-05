@@ -23,7 +23,16 @@ export default function ComponentsPage() {
           const api = getComponentApi(entry.slug)
 
           return (
-            <section key={entry.slug} id={entry.slug} className="scroll-mt-4 border-b">
+            <section
+              key={entry.slug}
+              id={entry.slug}
+              // Mirrors ExampleWrapper's own bg-muted dark:bg-background (two
+              // semantic tokens, not a raw color override) so the title/API
+              // block above it doesn't show a seam against the page's plain
+              // background in light mode.
+              // eslint-disable-next-line no-restricted-syntax
+              className="scroll-mt-4 border-b bg-muted dark:bg-background"
+            >
               <h2 className="px-6 pt-6 text-sm font-semibold text-muted-foreground">
                 {entry.title}
               </h2>
