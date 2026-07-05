@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 const links = [
   { href: "/components", label: "Components" },
   { href: "/blocks", label: "Blocks" },
+  { href: "/theme", label: "Theme" },
 ]
 
 export function SiteNav() {
