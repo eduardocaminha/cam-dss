@@ -46,6 +46,28 @@ Personal shadcn/ui design system. See `README.md` for structure and
   Not patched here: silencing it would require either filtering
   `console.error` (masks real errors) or replacing `next-themes`, neither
   warranted for a dev-only cosmetic warning.
+- Several stock `-example.tsx` files use `style-<name>:` Tailwind variant
+  prefixes (e.g. `style-nova:rounded-lg style-luma:rounded-xl`) that only
+  exist in the shadcn-ui/ui monorepo's own build, where all 8 styles' CSS
+  loads at once (see the create builder's live style-switching). This
+  project doesn't define those variants, so the classes are inert. Where
+  the example also has an unprefixed base value (most cases, e.g.
+  `rounded-lg style-luma:rounded-3xl`), this is harmless - the base wins
+  and just never gets overridden. Fixed the cases where it wasn't
+  harmless - a bordered box with *only* `style-*:` rounding and no base
+  fallback rendered with sharp corners: `accordion-example.tsx` ("With
+  Disabled"), `tabs-example.tsx` (5 occurrences), `dialog-example.tsx`
+  ("Chat Settings"). Added the plain unprefixed class matching
+  style-nova's value (the active style) to each. Safe to edit - verified
+  `shadcn apply` never touches `components/*-example.tsx` (only
+  `components/ui`, `app/globals.css`, `app/layout.tsx`, `components.json`
+  change), so this fix isn't wiped out by a future theme change. A few
+  other files have the same *inert-but-harmless* pattern for
+  gap/sizing/padding rather than border-radius (`hover-card-example.tsx`,
+  `input-otp-example.tsx`, `navigation-menu-example.tsx`,
+  `sheet-example.tsx`) - checked navigation-menu visually, not broken;
+  left as-is rather than a full sweep, since none produce the same
+  jarring "sharp box" look.
 
 ## Theme menu
 
