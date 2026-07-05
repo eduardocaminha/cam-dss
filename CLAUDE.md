@@ -47,6 +47,39 @@ Personal shadcn/ui design system. See `README.md` for structure and
   `console.error` (masks real errors) or replacing `next-themes`, neither
   warranted for a dev-only cosmetic warning.
 
+## Theme menu
+
+The header's palette-icon menu (`components/dss/theme-menu.tsx` +
+`lib/theme-actions.ts`) edits the 10 preset dimensions live: every change
+runs `shadcn apply <code> -y` for real via a Server Action, then `git
+checkout -- app/layout.tsx` to restore the Saans dogfood (`apply` always
+reintroduces the catalog Geist font there). This only works because
+`app/layout.tsx`'s dogfooded state is always the one committed at HEAD -
+never leave a pending edit to that file uncommitted.
+
+Two things verified the hard way, both handled in `lib/theme-actions.ts`:
+
+- **Achromatic cross-field validation.** `theme`/`chartColor` share an
+  achromatic subset with `baseColor` (neutral/stone/zinc/gray/mauve/
+  olive/mist/taupe). If either is set to one of these values, it must
+  equal `baseColor` exactly - the registry rejects mismatches (e.g.
+  `baseColor=stone` + `theme=neutral` → 400 "Theme 'neutral' is not
+  available for base color 'stone'"). A colored value (blue, red, ...) is
+  always independently valid. The action cascades whichever of the three
+  changes into the other two when they're currently achromatic, mirroring
+  the official create builder.
+- **`apply` has file writes that land after its own process resolves.**
+  Confirmed by observation: a heavy changeset (e.g. a style switch
+  touching 48 files) can still show the reverted `app/layout.tsx` diff
+  right after the checkout ran and returned successfully - some write
+  lands slightly later and clobbers it again. The action retries the
+  checkout (up to 5x, 200ms apart) until `git diff --quiet` confirms the
+  file is actually clean.
+
+Also: root-layout `next/font` changes don't hot-reload through Fast
+Refresh - after any theme change, a hard page reload (not just waiting
+for HMR) is needed to see the correct font/style reflected.
+
 ## Tooling scope
 
 Stock/vendored code is excluded from project-specific lint rules and,

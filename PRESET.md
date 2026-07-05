@@ -26,6 +26,19 @@ Last updated: 2026-07-04 (initial scaffold defaults, not yet customized).
 
 ## Editing loop
 
+**Preferred: the in-app theme menu.** Click the palette icon in the header
+(`components/dss/theme-menu.tsx`) and pick a value per dimension - each
+change runs a real `shadcn apply` via a Server Action
+(`lib/theme-actions.ts`) and reflects within a few seconds (hard-reload the
+page, since root-layout `next/font` changes don't hot-reload through Fast
+Refresh). It also auto-restores the Saans font dogfood after every apply
+and handles the achromatic baseColor/theme/chartColor cross-validation.
+See `CLAUDE.md` § Theme menu for what it does under the hood. After
+settling on a combo you like, still do steps 6-7 below manually (this
+tool does not touch PRESET.md or commit).
+
+**Manual / exploring in the official builder:**
+
 1. `pnpm preset:open` (or open the URL above) to load the current preset in the official builder.
 2. Edit any of the 10 catalog dimensions (style, colors, fonts, icon library, radius, menu accent/color).
 3. Copy the new preset code from the builder.

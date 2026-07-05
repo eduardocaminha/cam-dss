@@ -23,8 +23,12 @@ batch, previewed, and turned into a shareable preset.
   component, rendered on `/components`.
 - `components/blocks/<block>` - stock block components, namespaced per block
   to avoid filename collisions (see `scripts/add-block.mjs`).
-- `components/dss` - the app's own glue code (nav, block card).
+- `components/dss` - the app's own glue code (nav, block card, theme menu).
 - `lib/blocks.ts` - the 27-block manifest grouped by family.
+- `lib/theme-actions.ts` - the theme menu's Server Action: runs `shadcn
+  apply` for real on every dimension change. See `CLAUDE.md` § Theme menu.
+- `lib/component-api.ts` - extracts each component's `variant`/`size` API
+  from its stock source, shown above its example on `/components`.
 
 ## Commands
 

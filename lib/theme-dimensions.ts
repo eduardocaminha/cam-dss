@@ -1,123 +1,56 @@
-// Reference data for the 10 shadcn preset dimensions and their possible
-// values, verified directly against ui.shadcn.com/create (not guessed).
-// "current" mirrors PRESET.md - update both together after a preset change.
+// The 10 shadcn preset dimensions and their valid values, imported
+// straight from the installed shadcn/preset package - not scraped, not
+// hand-maintained, always in sync with the installed CLI version.
+import {
+  PRESET_BASE_COLORS,
+  PRESET_CHART_COLORS,
+  PRESET_FONT_HEADINGS,
+  PRESET_FONTS,
+  PRESET_ICON_LIBRARIES,
+  PRESET_MENU_ACCENTS,
+  PRESET_MENU_COLORS,
+  PRESET_RADII,
+  PRESET_STYLES,
+  PRESET_THEMES,
+  type PresetConfig,
+} from "shadcn/preset"
 
 export type ThemeDimension = {
-  key: string
+  key: keyof PresetConfig
   label: string
-  current: string
-  values: string[]
+  values: readonly string[]
 }
 
-const COLOR_PALETTE = [
-  "Neutral",
-  "Amber",
-  "Blue",
-  "Cyan",
-  "Emerald",
-  "Fuchsia",
-  "Green",
-  "Indigo",
-  "Lime",
-  "Orange",
-  "Pink",
-  "Purple",
-  "Red",
-  "Rose",
-  "Sky",
-  "Teal",
-  "Violet",
-  "Yellow",
-]
-
-const FONT_CATALOG = [
-  "Geist",
-  "Inter",
-  "Noto Sans",
-  "Nunito Sans",
-  "Figtree",
-  "Roboto",
-  "Raleway",
-  "DM Sans",
-  "Public Sans",
-  "Outfit",
-  "Oxanium",
-  "Manrope",
-  "Space Grotesk",
-  "Montserrat",
-  "IBM Plex Sans",
-  "Source Sans 3",
-  "Instrument Sans",
-  "Geist Mono",
-  "JetBrains Mono",
-  "Noto Serif",
-  "Roboto Slab",
-  "Merriweather",
-  "Lora",
-  "Playfair Display",
-  "EB Garamond",
-  "Instrument Serif",
-]
-
 export const themeDimensions: ThemeDimension[] = [
-  {
-    key: "style",
-    label: "Style",
-    current: "Nova",
-    values: ["Vega", "Nova", "Maia", "Lyra", "Mira", "Luma", "Sera", "Rhea"],
-  },
-  {
-    key: "baseColor",
-    label: "Base Color",
-    current: "Neutral",
-    values: ["Neutral", "Stone", "Zinc", "Mauve", "Olive", "Mist", "Taupe"],
-  },
-  {
-    key: "theme",
-    label: "Theme",
-    current: "Neutral",
-    values: COLOR_PALETTE,
-  },
-  {
-    key: "chartColor",
-    label: "Chart Color",
-    current: "Neutral",
-    values: COLOR_PALETTE,
-  },
-  {
-    key: "fontHeading",
-    label: "Heading",
-    current: "Saans (dogfooded - see PRESET.md caveat)",
-    values: FONT_CATALOG,
-  },
-  {
-    key: "font",
-    label: "Font",
-    current: "Saans (dogfooded - see PRESET.md caveat)",
-    values: FONT_CATALOG,
-  },
-  {
-    key: "iconLibrary",
-    label: "Icon Library",
-    current: "Lucide",
-    values: ["Lucide", "Tabler Icons", "HugeIcons", "Phosphor Icons", "Remix Icon"],
-  },
-  {
-    key: "radius",
-    label: "Radius",
-    current: "Default",
-    values: ["None", "Small", "Default", "Medium", "Large"],
-  },
-  {
-    key: "menuColor",
-    label: "Menu Color",
-    current: "Default",
-    values: ["Default", "Inverted"],
-  },
-  {
-    key: "menuAccent",
-    label: "Menu Accent",
-    current: "Subtle",
-    values: ["Subtle", "Bold"],
-  },
+  { key: "style", label: "Style", values: PRESET_STYLES },
+  { key: "baseColor", label: "Base Color", values: PRESET_BASE_COLORS },
+  { key: "theme", label: "Theme", values: PRESET_THEMES },
+  { key: "chartColor", label: "Chart Color", values: PRESET_CHART_COLORS },
+  { key: "iconLibrary", label: "Icon Library", values: PRESET_ICON_LIBRARIES },
+  { key: "font", label: "Font", values: PRESET_FONTS },
+  { key: "fontHeading", label: "Heading", values: PRESET_FONT_HEADINGS },
+  { key: "radius", label: "Radius", values: PRESET_RADII },
+  { key: "menuAccent", label: "Menu Accent", values: PRESET_MENU_ACCENTS },
+  { key: "menuColor", label: "Menu Color", values: PRESET_MENU_COLORS },
 ]
+
+const VALUE_OVERRIDES: Record<string, string> = {
+  hugeicons: "HugeIcons",
+  remixicon: "Remix Icon",
+  "dm-sans": "DM Sans",
+  "jetbrains-mono": "JetBrains Mono",
+}
+
+const WORD_OVERRIDES: Record<string, string> = {
+  ibm: "IBM",
+  eb: "EB",
+}
+
+export function formatSlug(slug: string): string {
+  if (VALUE_OVERRIDES[slug]) return VALUE_OVERRIDES[slug]
+
+  return slug
+    .split("-")
+    .map((word) => WORD_OVERRIDES[word] ?? word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+}
