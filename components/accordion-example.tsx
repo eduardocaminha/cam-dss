@@ -132,12 +132,12 @@ function AccordionWithBorders() {
 
   return (
     <Example title="With Borders">
-      <Accordion className="mx-auto max-w-lg style-vega:gap-2 style-nova:gap-2 style-lyra:gap-2">
+      <Accordion className="mx-auto max-w-lg gap-2 style-vega:gap-2 style-nova:gap-2 style-lyra:gap-2">
         {items.map((item) => (
           <AccordionItem
             key={item.value}
             value={item.value}
-            className="style-vega:rounded-lg style-vega:border style-nova:rounded-lg style-nova:border style-lyra:border"
+            className="rounded-lg border style-vega:rounded-lg style-vega:border style-nova:rounded-lg style-nova:border style-lyra:border"
           >
             <AccordionTrigger className="font-medium style-vega:px-4 style-vega:text-sm style-nova:px-2.5 style-nova:text-sm style-lyra:px-2 style-lyra:text-xs style-maia:text-sm style-mira:text-xs style-luma:text-sm">
               {item.trigger}

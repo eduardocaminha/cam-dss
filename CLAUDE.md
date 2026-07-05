@@ -67,7 +67,17 @@ Personal shadcn/ui design system. See `README.md` for structure and
   `input-otp-example.tsx`, `navigation-menu-example.tsx`,
   `sheet-example.tsx`) - checked navigation-menu visually, not broken;
   left as-is rather than a full sweep, since none produce the same
-  jarring "sharp box" look.
+  jarring "sharp box" look. A later grep across all `components/
+  *-example.tsx` for `style-<name>:(rounded-|border|gap-)` found one the
+  first pass missed: `accordion-example.tsx`'s "With Borders" example had
+  *no* border or radius at all, and 0 gap between items, because it only
+  ever had `style-vega:` / `style-nova:` / `style-lyra:` prefixed classes
+  for `border`, `rounded-lg`, and `gap-2` - not the "has a base value"
+  case this doc previously assumed made every other instance safe. Fixed
+  the same way (added the unprefixed style-nova value). Lesson: grep the
+  full pattern (`style-[a-z]+:(rounded-|border|gap-)`) across every
+  `*-example.tsx` when auditing this, not just the ones already known to
+  be broken - it's a per-occurrence bug, not a per-file one.
 
 ## Theme menu
 
