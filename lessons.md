@@ -3,6 +3,36 @@
 Diário cronológico de correções e descobertas. Cada entrada aponta pro
 local canônico onde a regra é aplicada, não duplica a regra aqui.
 
+## 2026-07-18 - reskin do /dashboard para o CAM Runtime DS
+
+Situação: usuário pediu para trocar o design do /dashboard aplicando o
+`CAM_DESIGN_SYSTEM.md` (industrial/brutalist: flat, hard edges, clipped
+corners por role, Acid Pop, mono, badges de estado com texto+símbolo,
+evidence cards). Decisão: reskin fiel completo + repensar layout (página
+única assimétrica, control panel). Saiu a estética "Otter" (pastel, pills,
+grain, shimmer, gradiente).
+
+Achado 1: para um scroller horizontal interno (`overflow-x-auto`, ex.
+FlowStrip do pipeline, DragScroll dos implementers) rolar em vez de alargar
+a página, TODA a cadeia de ancestrais `flex flex-col` precisa de `min-w-0`
+(não só o scroller). Sem isso o item flex cresce até o conteúdo e estoura o
+body no mobile. Corrigido em page.tsx (wrapper `Rise`) e pipeline.tsx.
+
+Achado 2 (pré-existente, corrigido na mesma sessão a pedido): `site-nav.tsx`
+tinha overflow horizontal abaixo de ~420px (conteúdo 515px em viewport 400) -
+os 5 links + 2 botões de tema não cabiam, afetando TODAS as páginas. Fix:
+a nav virou scrollável (`min-w-0 overflow-x-auto` + scrollbar escondida
+inline; links `shrink-0 whitespace-nowrap`), e no header (`app/(app)/
+layout.tsx`) o grupo do logo+nav ganhou `min-w-0` e o grupo dos botões
+`shrink-0`. Fresh load em 375px: sem overflow (documentElement scrollWidth =
+clientWidth). Nota: ao redimensionar AO VIVO de wide->375, o ResponsiveContainer
+do recharts (tokens-card) fica stale e reporta largura antiga até o reflow -
+não acontece em load direto no mobile (comportamento upstream do recharts).
+
+Local canônico: descrição do dashboard em `README.md` (§Structure); tokens
+`--cam-*` e motion vivem em `app/(app)/dashboard/dashboard.css` (escopados,
+protegidos do `shadcn apply`); mapas role/state em `cam-tokens.ts`.
+
 ## 2026-07-05 - sweep de style-<name>: inerte ficou incompleta
 
 Situação: usuário reportou que o exemplo "With Borders" do Accordion
