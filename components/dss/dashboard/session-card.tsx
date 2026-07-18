@@ -25,44 +25,23 @@ const cost = {
 }
 const costTotal = cost.in + cost.cached + cost.out
 
-// The session is running, so its emphasis is the running state color.
 const sessionState = agentStateKey[session.state === "running" ? "active" : "queued"]
 
-// A hard progress rail: a flat track with a solid fill, radius 0 - no pill,
-// no gradient (DS section 6).
-function ProgressRail({
-  label,
-  done,
-  total,
-}: {
-  label: string
-  done: number
-  total: number
-}) {
+// The single shared bar height for every session metric (stories, iterations,
+// tokens, cost) so they all read at the same weight.
+const BAR = "h-3"
+
+// A hard progress rail: flat track, solid fill, radius 0.
+function Bar({ value }: { value: number }) {
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="cam-label text-[10px] text-(--cam-fg-muted)">
-          {label}
-        </span>
-        <span className="cam-mono text-sm text-(--cam-fg)">
-          {done}/{total}
-        </span>
-      </div>
-      <div className="h-3 bg-(--cam-line)">
-        <div
-          className="h-full bg-(--cam-fg)"
-          style={{ width: `${(done / total) * 100}%` }}
-        />
-      </div>
+    <div className={cn(BAR, "bg-(--cam-line)")}>
+      <div className="h-full bg-(--cam-fg)" style={{ width: `${value}%` }} />
     </div>
   )
 }
 
 // in vs out as two hard segments; cached nests as an inset inside the in
-// segment (it's a portion of in, not a third parallel category). Rectangular,
-// radius 0 - the exact numbers are in the legend, so the bar is only roughly
-// proportional (each side floored at MIN_PCT so a lopsided ratio still reads).
+// segment (a portion of in, not a third category). Same height as Bar.
 function SegBar({
   inValue,
   cached,
@@ -84,11 +63,8 @@ function SegBar({
   }
   const cachedPct = (cached / inValue) * 100
   return (
-    <div className="flex h-4 gap-0.5">
-      <div
-        className="relative bg-(--cam-fg)"
-        style={{ width: `${inPct}%` }}
-      >
+    <div className={cn("flex gap-0.5", BAR)}>
+      <div className="relative bg-(--cam-fg)" style={{ width: `${inPct}%` }}>
         <div
           className="absolute inset-y-0 left-0 bg-(--cam-surface-2)"
           style={{ width: `${cachedPct}%`, minWidth: "6px" }}
@@ -99,45 +75,45 @@ function SegBar({
   )
 }
 
-// A single instrument readout in the right rail: label, big mono value, and
-// (for token/cost) a segmented flow bar with an exact in/cached/out legend.
-function Instrument({
+function FlowLegend({
+  inValue,
+  cached,
+  out,
+  fmt,
+}: {
+  inValue: number
+  cached: number
+  out: number
+  fmt: (v: number) => string
+}) {
+  return (
+    <span className="cam-mono text-[11px] text-(--cam-fg-muted)">
+      ↑ {fmt(inValue)} ({fmt(cached)}) ↓ {fmt(out)}
+    </span>
+  )
+}
+
+// One separate metric card: label + big mono value, plus an optional bar.
+function MetricCard({
   label,
   value,
-  flow,
+  children,
 }: {
   label: string
   value: string
-  flow?: {
-    inValue: number
-    cached: number
-    out: number
-    fmt: (v: number) => string
-  }
+  children?: React.ReactNode
 }) {
   return (
-    <CamPanel border="secondary" className="flex flex-col gap-3 p-4">
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="cam-label text-[10px] text-(--cam-fg-muted)">
+    <CamPanel className="flex flex-col gap-3 p-4">
+      <div className="flex flex-col gap-2">
+        <span className="cam-label text-[11px] text-(--cam-fg-muted)">
           {label}
         </span>
-        <span className="cam-mono text-xl leading-none text-(--cam-fg)">
+        <span className="text-3xl leading-none font-semibold tabular-nums text-(--cam-fg)">
           {value}
         </span>
       </div>
-      {flow && (
-        <>
-          <SegBar
-            inValue={flow.inValue}
-            cached={flow.cached}
-            out={flow.out}
-          />
-          <span className="cam-mono text-[11px] text-(--cam-fg-muted)">
-            ↑ {flow.fmt(flow.inValue)} ({flow.fmt(flow.cached)}) ↓{" "}
-            {flow.fmt(flow.out)}
-          </span>
-        </>
-      )}
+      {children}
     </CamPanel>
   )
 }
@@ -145,81 +121,85 @@ function Instrument({
 export function SessionCard({ className }: { className?: string }) {
   return (
     <section className={cn("flex flex-col gap-4", className)}>
-      <SectionLabel note={session.branch}>Session</SectionLabel>
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
-        {/* Anchor panel: the operational focus, with the running state as its
-            emphasis (8px left border). */}
-        <CamPanel
-          emphasis={sessionState}
-          className="flex flex-col xl:col-span-8"
-        >
-          <div className="flex flex-wrap items-center gap-4 border-b-2 border-(--cam-border) p-5">
+      <SectionLabel>Session</SectionLabel>
+      {/* State, branch and issue as three separate cards on one line. Branch
+          and issue share the same display size/weight. */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <CamPanel className="flex flex-col gap-3 p-5">
+          <span className="cam-label text-[11px] text-(--cam-fg-muted)">
+            state
+          </span>
+          <div className="flex flex-wrap items-center gap-3">
             <StatusBadge state={sessionState} />
-            <span className="cam-display text-4xl tracking-tight text-(--cam-fg)">
+            <span className="cam-display text-3xl tracking-tight text-(--cam-fg)">
               {stageVerb[currentStage]}
             </span>
           </div>
-          <div className="grid grid-cols-1 gap-px border-b-2 border-(--cam-border) bg-(--cam-border) sm:grid-cols-2">
-            <div className="flex flex-col gap-2 bg-(--cam-surface) p-5">
-              <span className="cam-label text-[10px] text-(--cam-fg-muted)">
-                branch
-              </span>
-              <span className="flex items-center gap-2">
-                <GitBranchIcon
-                  className="size-4 shrink-0 text-(--cam-fg-muted)"
-                  aria-hidden
-                />
-                <span className="cam-mono truncate text-sm text-(--cam-fg)">
-                  {session.branch}
-                </span>
-              </span>
-            </div>
-            <div className="flex flex-col gap-2 bg-(--cam-surface) p-5">
-              <span className="cam-label text-[10px] text-(--cam-fg-muted)">
-                issue #{session.issue}
-              </span>
-              <span className="line-clamp-2 text-sm text-(--cam-fg)">
-                {session.issueTitle}
-              </span>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 gap-6 p-5 sm:grid-cols-2">
-            <ProgressRail
-              label="stories"
-              done={session.storiesDone}
-              total={session.storiesTotal}
-            />
-            <ProgressRail
-              label="iterations"
-              done={session.iteration}
-              total={session.maxIterations}
-            />
-          </div>
         </CamPanel>
-        {/* Instrument rail. */}
-        <div className="flex flex-col gap-4 xl:col-span-4">
-          <Instrument label="session time" value={session.time} />
-          <Instrument
-            label="tokens"
-            value={fmtTokens(tokensTotal)}
-            flow={{
-              inValue: session.tokensIn,
-              cached: session.tokensCached,
-              out: session.tokensOut,
-              fmt: fmtTokens,
-            }}
-          />
-          <Instrument
-            label="cost"
-            value={fmtCost(costTotal)}
-            flow={{
-              inValue: cost.in,
-              cached: cost.cached,
-              out: cost.out,
-              fmt: fmtCost,
-            }}
-          />
-        </div>
+        <CamPanel className="flex flex-col gap-3 p-5">
+          <span className="cam-label text-[11px] text-(--cam-fg-muted)">
+            branch
+          </span>
+          <span className="flex items-center gap-2">
+            <GitBranchIcon
+              className="size-5 shrink-0 text-(--cam-fg-muted)"
+              aria-hidden
+            />
+            <span className="cam-display truncate text-xl tracking-tight text-(--cam-fg)">
+              {session.branch}
+            </span>
+          </span>
+        </CamPanel>
+        <CamPanel className="flex flex-col gap-3 p-5">
+          <span className="cam-label text-[11px] text-(--cam-fg-muted)">
+            issue #{session.issue}
+          </span>
+          <span className="cam-display text-xl tracking-tight text-(--cam-fg)">
+            {session.issueTitle}
+          </span>
+        </CamPanel>
+      </div>
+      {/* Every metric is its own card; the bars all share one height. */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
+        <MetricCard label="session time" value={session.time} />
+        <MetricCard
+          label="stories"
+          value={`${session.storiesDone}/${session.storiesTotal}`}
+        >
+          <Bar value={(session.storiesDone / session.storiesTotal) * 100} />
+        </MetricCard>
+        <MetricCard
+          label="iterations"
+          value={`${session.iteration}/${session.maxIterations}`}
+        >
+          <Bar value={(session.iteration / session.maxIterations) * 100} />
+        </MetricCard>
+        <MetricCard label="tokens" value={fmtTokens(tokensTotal)}>
+          <div className="flex flex-col gap-2">
+            <SegBar
+              inValue={session.tokensIn}
+              cached={session.tokensCached}
+              out={session.tokensOut}
+            />
+            <FlowLegend
+              inValue={session.tokensIn}
+              cached={session.tokensCached}
+              out={session.tokensOut}
+              fmt={fmtTokens}
+            />
+          </div>
+        </MetricCard>
+        <MetricCard label="cost" value={fmtCost(costTotal)}>
+          <div className="flex flex-col gap-2">
+            <SegBar inValue={cost.in} cached={cost.cached} out={cost.out} />
+            <FlowLegend
+              inValue={cost.in}
+              cached={cost.cached}
+              out={cost.out}
+              fmt={fmtCost}
+            />
+          </div>
+        </MetricCard>
       </div>
     </section>
   )

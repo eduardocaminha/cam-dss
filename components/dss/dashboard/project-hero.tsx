@@ -1,9 +1,12 @@
+import * as React from "react"
+
 import { project } from "@/components/dss/dashboard/data"
 import { CamPanel } from "@/components/dss/dashboard/cam-panel"
+import { SectionLabel } from "@/components/dss/dashboard/section-label"
+import { SectionMenu } from "@/components/dss/dashboard/section-menu"
 import { cn } from "@/lib/utils"
 
-// Global project readouts, mono and right-aligned (DS 8.5: numbers align
-// right; monospaced for metrics).
+// Global project readouts, moved into their own Overview section.
 const metrics = [
   { label: "total tokens", value: project.tokens },
   { label: "total cost", value: project.cost },
@@ -12,50 +15,70 @@ const metrics = [
   { label: "cycles", value: String(project.cycles) },
 ]
 
-function Metric({ label, value }: { label: string; value: string }) {
+// The acid brand mark with its own 2px border that follows the clipped corner
+// (two layers: border-color base + inset acid fill, same trick as CamPanel).
+function CamLogo() {
   return (
-    <div className="flex flex-col gap-1">
-      <span className="cam-label text-[10px] text-(--cam-carbon-fg-muted)">
-        {label}
+    <span
+      style={{ "--cam-cut": "12px" } as React.CSSProperties}
+      className="cam-clip-br inline-block bg-(--cam-border) p-0.5"
+    >
+      <span
+        style={{ "--cam-cut": "10.8px" } as React.CSSProperties}
+        className="cam-clip-br cam-display block bg-(--cam-acid) px-4 py-2 text-4xl leading-none font-bold text-(--cam-carbon)"
+      >
+        CAM
       </span>
-      <span className="cam-mono text-lg leading-none text-(--cam-carbon-fg)">
-        {value}
-      </span>
-    </div>
+    </span>
   )
 }
 
-// The command bar: the always-dark (Carbon) header that carries the brand
-// mark, the project identity and the global loop metrics. Acid Pop is the CAM
-// identity mark (DS 4.4), used as a solid flat block, not a timid accent.
+function StatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <CamPanel className="flex flex-col gap-2 p-4">
+      <span className="cam-label text-[11px] text-(--cam-fg-muted)">{label}</span>
+      <span className="text-3xl leading-none font-semibold tabular-nums text-(--cam-fg)">
+        {value}
+      </span>
+    </CamPanel>
+  )
+}
+
+// The header bar: same surface + black border as the cards, carrying the brand
+// mark and the project identity (no metrics - those live in Overview below).
 export function CommandBar({ className }: { className?: string }) {
   return (
     <CamPanel
-      tone="carbon"
-      border="primary"
       className={cn(
-        "flex flex-wrap items-center justify-between gap-x-8 gap-y-5 p-5 md:p-6",
+        "flex flex-wrap items-center justify-between gap-4 gap-y-5 p-5 md:p-6",
         className
       )}
     >
       <div className="flex items-center gap-4">
-        <span className="cam-display bg-(--cam-acid) px-3 py-1.5 text-2xl leading-none text-(--on-acid)">
-          CAM
-        </span>
+        <CamLogo />
         <div className="flex flex-col gap-1">
-          <span className="cam-label text-[10px] text-(--cam-carbon-fg-muted)">
-            runtime · project
+          <span className="cam-label text-[11px] text-(--cam-fg-muted)">
+            project
           </span>
-          <span className="cam-mono text-lg leading-none text-(--cam-carbon-fg)">
+          <span className="text-lg leading-none font-semibold text-(--cam-fg)">
             {project.name}
           </span>
         </div>
       </div>
-      <dl className="flex flex-wrap gap-x-8 gap-y-4">
+      <SectionMenu />
+    </CamPanel>
+  )
+}
+
+export function Overview({ className }: { className?: string }) {
+  return (
+    <section className={cn("flex flex-col gap-4", className)}>
+      <SectionLabel>Overview</SectionLabel>
+      <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
         {metrics.map((m) => (
-          <Metric key={m.label} {...m} />
+          <StatCard key={m.label} {...m} />
         ))}
       </dl>
-    </CamPanel>
+    </section>
   )
 }

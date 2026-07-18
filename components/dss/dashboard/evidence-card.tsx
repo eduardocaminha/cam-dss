@@ -49,24 +49,23 @@ export function EvidenceCard({
   className,
 }: EvidenceProps) {
   return (
-    <CamPanel
-      border="secondary"
-      className={cn("flex flex-col gap-3 p-4", className)}
-    >
+    <CamPanel className={cn("flex flex-col gap-3 p-4", className)}>
       <div className="flex items-start justify-between gap-3">
         <span className="cam-label pt-1 text-[11px] text-(--cam-fg)">
           {proof}
         </span>
         <Stamp result={result} />
       </div>
-      <span className="cam-display text-2xl tracking-tight text-(--cam-fg)">
+      <span className="cam-display text-3xl tracking-tight text-(--cam-fg)">
         {metric}
       </span>
       {source && (
-        <span className="cam-mono text-xs text-(--cam-fg-muted)">{source}</span>
+        <span className="cam-mono text-[11px] text-(--cam-fg-muted)">
+          {source}
+        </span>
       )}
       {artifact && (
-        <span className="cam-mono flex items-center gap-2 text-xs text-(--cam-fg-muted)">
+        <span className="cam-mono flex items-center gap-2 text-[11px] text-(--cam-fg-muted)">
           <span
             aria-hidden
             className="inline-block size-2 shrink-0 bg-(--cam-fg-muted)"

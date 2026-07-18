@@ -51,17 +51,21 @@ export function TokensCard({ className }: { className?: string }) {
               content={<ChartTooltipContent indicator="dashed" />}
             />
             <ChartLegend content={<ChartLegendContent />} />
+            {/* No grow-in animation: operational chart, not decorative motion
+                (DS section 10) - and it keeps the render deterministic. */}
             <Bar
               dataKey="worker"
               fill="var(--color-worker)"
               radius={0}
               maxBarSize={22}
+              isAnimationActive={false}
             />
             <Bar
               dataKey="orch"
               fill="var(--color-orch)"
               radius={0}
               maxBarSize={22}
+              isAnimationActive={false}
             />
           </BarChart>
         </ChartContainer>

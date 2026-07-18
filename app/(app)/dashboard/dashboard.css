@@ -29,34 +29,30 @@
   --cam-mint: #51d6c3;
   --cam-coral: #ff6259;
 
-  /* Role -> color (section 4.4). Ship has no DS color (Coral is reserved for
-     failure), so it takes Deep Pine, the "completed"/finalization color. */
-  --role-orchestrator: var(--cam-acid);
-  --role-planner: var(--cam-blue);
-  --role-implementer: var(--cam-orange);
-  --role-reviewer: var(--cam-lilac);
-  --role-auditor: var(--cam-mint);
-  --role-ship: var(--cam-deep-pine);
+  /* Agent -> color. Appears ONLY in the square numbered block on each agent
+     card (never the card fill, name, border or a top strip). The card itself
+     stays neutral; the block number is always Ink. Orchestrator is white, so
+     its block gets an Ink border to separate from the card. */
+  --role-orchestrator: #ffffff;
+  --role-planner: #9be564;
+  --role-auditor: #ffd84d;
+  --role-implementer: #78a9ff;
+  --role-reviewer: #ff7a70;
+  --role-ship: #c8a7ff;
 
-  /* State -> color (section 4.5). Role color and state color are separate. */
-  --state-running: var(--cam-acid);
-  --state-waiting: var(--cam-lilac);
-  --state-recovering: var(--cam-blue);
-  --state-blocked: var(--cam-coral);
-  --state-failed: var(--cam-coral);
-  --state-completed: var(--cam-deep-pine);
-  --state-unknown: var(--cam-concrete);
+  /* State -> color. An independent palette from the agent colors, applied only
+     in the status badge - never as a card fill. */
+  --state-running: #55d9ff;
+  --state-waiting: #d2cec3;
+  --state-recovering: #ffb45c;
+  --state-blocked: #f58acb;
+  --state-failed: #111111;
+  --state-completed: #78e0b6;
+  --state-unknown: #d2cec3;
 
-  /* Readable foreground per fill (section 4.6). Ink on the warm/bright fills,
-     Paper on the dark/deep ones. */
-  --on-acid: var(--cam-ink);
-  --on-blue: var(--cam-paper);
-  --on-orange: var(--cam-ink);
-  --on-lilac: var(--cam-ink);
-  --on-mint: var(--cam-ink);
-  --on-coral: var(--cam-ink);
-  --on-deep-pine: var(--cam-paper);
-  --on-concrete: var(--cam-ink);
+  /* Foreground on a state color: Ink on the light states, Paper on Failed. */
+  --on-state: #111111;
+  --on-state-failed: #f7f5ee;
 
   /* Spacing scale (section 9.2) */
   --space-1: 4px;
@@ -78,20 +74,25 @@
   --cam-border-secondary: 1px;
   --cam-border-emphasis: 8px;
 
-  /* Clipped-corner cut size (section 6.3) */
+  /* Clipped-corner cut size (section 6.3). The inner cut is the outer minus
+     ~1.2px so the 2px-inset fill layer leaves an even 2px border along the
+     diagonal, matching the straight edges (see CamPanel). */
   --cam-cut: 18px;
+  --cam-cut-inner: 16.8px;
 
   /* Light-mode surfaces */
   --cam-page: var(--cam-bone);
   --cam-surface: var(--cam-paper);
   --cam-surface-2: var(--cam-concrete);
   --cam-fg: var(--cam-ink);
-  --cam-fg-muted: #78766c;
+  /* Metadata foreground: darkened for a real >=4.5:1 read on the light
+     surfaces (no near-invisible captions). */
+  --cam-fg-muted: #5c5a51;
   --cam-border: var(--cam-ink);
   --cam-line: var(--cam-concrete);
   /* The always-dark command bar keeps Paper text in both modes. */
   --cam-carbon-fg: var(--cam-paper);
-  --cam-carbon-fg-muted: #9a988f;
+  --cam-carbon-fg-muted: #b6b4aa;
 }
 
 :root.dark [data-dash-root] {
@@ -99,11 +100,12 @@
   --cam-surface: var(--cam-ink);
   --cam-surface-2: #201f1d;
   --cam-fg: var(--cam-paper);
-  --cam-fg-muted: #9a988f;
+  --cam-fg-muted: #b0aea4;
   /* Concrete borders on Carbon: hard contrast without the glare of pure Paper
      lines everywhere (section 6.4: avoid hairline borders, keep contrast). */
   --cam-border: var(--cam-concrete);
   --cam-line: #33322e;
+  --cam-carbon-fg-muted: #b6b4aa;
 }
 
 /* Paint <body> (the scroll root) with the page fill while the dashboard is
@@ -190,6 +192,20 @@ body:has([data-dash-root]) {
     var(--cam-cut) 100%,
     0 calc(100% - var(--cam-cut))
   );
+}
+
+/* Section-menu item: the top-right corner notches on hover. Both states are
+   5-point polygons (same point count) so the cut animates in smoothly; the
+   resting state is a plain rectangle (cut = 0). */
+.cam-menu-item {
+  clip-path: polygon(0 0, 100% 0, 100% 0, 100% 100%, 0 100%);
+  transition:
+    clip-path var(--motion-fast) ease-out,
+    background-color var(--motion-fast) ease-out,
+    color var(--motion-fast) ease-out;
+}
+.cam-menu-item:hover {
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
 }
 
 /* --------------------------------------------------------------------------
@@ -304,6 +320,9 @@ body:has([data-dash-root]) {
   .cam-stamp {
     transform: rotate(-4deg);
     opacity: 1;
+  }
+  .cam-menu-item {
+    transition: none;
   }
   /* The ticker's base opacity is 0 (every line waits its turn) - without the
      animation driving it, freeze on the first line instead of showing

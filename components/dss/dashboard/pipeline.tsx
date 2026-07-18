@@ -8,7 +8,6 @@ import { StatusBadge } from "@/components/dss/dashboard/status-badge"
 import {
   agentStateKey,
   roleColorVar,
-  roleOnVar,
   type RoleKey,
   type StateKey,
 } from "@/components/dss/dashboard/cam-tokens"
@@ -54,10 +53,9 @@ function ActivityTicker({
   )
 }
 
-// Header shared by every stage card: a role-colored number chip, the role
-// mark (in the panel foreground for contrast, section 7.4), the role name and
-// model, and the DS state badge on the right (role color and state color kept
-// separate).
+// Header shared by every stage card. The card is neutral; the ONLY agent color
+// is the square numbered block (number always Ink). The name, icons and border
+// stay Ink. The DS state badge on the right carries the independent state color.
 function StageHeader({
   role,
   number,
@@ -72,26 +70,29 @@ function StageHeader({
   state: StateKey
 }) {
   return (
-    <div className="flex items-center justify-between gap-2">
-      <div className="flex min-w-0 items-center gap-2">
+    <div className="flex items-start justify-between gap-2">
+      <div className="flex min-w-0 items-center gap-3">
         <span
-          style={{
-            backgroundColor: roleColorVar[role],
-            color: roleOnVar[role],
-          }}
-          className="cam-mono flex size-7 shrink-0 items-center justify-center text-xs"
+          style={{ backgroundColor: roleColorVar[role] }}
+          className="cam-mono flex size-10 shrink-0 items-center justify-center border-2 border-(--cam-ink) text-base font-semibold text-(--cam-ink)"
         >
           {number}
         </span>
-        <RoleIcon role={role} size={18} className="shrink-0 text-(--cam-fg)" />
-        <span className="cam-label truncate text-[11px] text-(--cam-fg)">
-          {name}
-        </span>
-        <span className="cam-mono shrink-0 border border-(--cam-line) px-1.5 py-0.5 text-[10px] text-(--cam-fg-muted)">
-          {model}
-        </span>
+        <div className="flex min-w-0 flex-col gap-1">
+          <span className="flex min-w-0 items-center gap-1.5 text-(--cam-fg)">
+            <RoleIcon role={role} size={16} className="shrink-0" />
+            <span className="cam-label truncate text-[12px]">{name}</span>
+          </span>
+          <span className="cam-mono text-[11px] text-(--cam-fg-muted)">
+            {model}
+          </span>
+        </div>
       </div>
-      <StatusBadge state={state} className="shrink-0" />
+      <StatusBadge
+        state={state}
+        stamp={state === "completed"}
+        className="shrink-0"
+      />
     </div>
   )
 }
@@ -108,19 +109,18 @@ function StageCard({
   className?: string
 }) {
   const state = agentStateKey[stage.state]
-  // Implementer labels carry their own number ("Implementer 2") and the chip
+  // Implementer labels carry their own number ("Implementer 2") and the block
   // already shows one - strip it so it isn't doubled.
   const name = stage.label.replace(/\s\d+$/, "")
   return (
     <CamPanel
       role={stage.key}
-      rail="top"
       className={cn(
-        "flex min-h-56 flex-col justify-between gap-3 p-5 pt-6",
+        "flex min-h-56 flex-col justify-between gap-4 p-5",
         className
       )}
     >
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-4">
         <StageHeader
           role={stage.key}
           number={number}
@@ -134,12 +134,14 @@ function StageCard({
           </span>
         )}
         {stage.state === "queued" ? (
-          <p className="cam-mono text-xs text-(--cam-fg-muted)">{stage.note}</p>
+          <p className="cam-mono text-[13px] text-(--cam-fg-muted)">
+            {stage.note}
+          </p>
         ) : (
           <ActivityTicker lines={stage.activity} offset={tickerOffset} />
         )}
       </div>
-      <span className="cam-mono text-[11px] text-(--cam-fg-muted)">
+      <span className="cam-mono border-t-2 border-(--cam-line) pt-3 text-[11px] text-(--cam-fg-muted)">
         {stage.tokens} · {stage.cost} · {stage.time}
       </span>
     </CamPanel>
@@ -150,13 +152,12 @@ function OrchestratorCard({ className }: { className?: string }) {
   return (
     <CamPanel
       role="orchestrator"
-      rail="top"
       className={cn(
-        "flex min-h-56 flex-col justify-between gap-3 p-5 pt-6",
+        "flex min-h-56 flex-col justify-between gap-4 p-5",
         className
       )}
     >
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-4">
         <StageHeader
           role="orchestrator"
           number={0}
@@ -169,7 +170,7 @@ function OrchestratorCard({ className }: { className?: string }) {
         </span>
         <ActivityTicker lines={orchestrator.activity} />
       </div>
-      <span className="cam-mono text-[11px] text-(--cam-fg-muted)">
+      <span className="cam-mono border-t-2 border-(--cam-line) pt-3 text-[11px] text-(--cam-fg-muted)">
         {orchestrator.dispatches} dispatches · {orchestrator.tokens} ·{" "}
         {orchestrator.cost} · up {orchestrator.uptime}
       </span>
@@ -177,86 +178,10 @@ function OrchestratorCard({ className }: { className?: string }) {
   )
 }
 
-// The workflow strip (DS 8.6): ISSUE -> PLAN -> AUDIT -> IMPLEMENT -> REVIEW
-// -> SHIP as connected phase blocks. Solid rail for the reached path, concrete
-// for what's still ahead, dashed blue for recovery.
-type Phase = { label: string; role?: RoleKey; state: StateKey }
-
-function Connector({ state }: { state: StateKey }) {
-  const reached = state === "completed" || state === "running"
-  return (
-    <span aria-hidden className="flex shrink-0 items-center self-center">
-      <span
-        className={cn(
-          "h-0.5 w-5",
-          state === "recovering"
-            ? "cam-recover"
-            : reached
-              ? "bg-(--cam-border)"
-              : "bg-(--cam-line)"
-        )}
-      />
-      <span
-        className={cn(
-          "cam-mono text-sm",
-          reached ? "text-(--cam-fg)" : "text-(--cam-fg-muted)"
-        )}
-      >
-        →
-      </span>
-    </span>
-  )
-}
-
-function FlowStrip() {
-  const implementState: StateKey = implementers.some(
-    (i) => i.state === "active"
-  )
-    ? "running"
-    : implementers.every((i) => i.state === "done")
-      ? "completed"
-      : "waiting"
-  const phases: Phase[] = [
-    { label: "issue", state: "completed" },
-    { label: "plan", role: "planner", state: agentStateKey[planner.state] },
-    { label: "audit", role: "auditor", state: agentStateKey[auditor.state] },
-    { label: "implement", role: "implementer", state: implementState },
-    { label: "review", role: "reviewer", state: agentStateKey[reviewer.state] },
-    { label: "ship", role: "ship", state: agentStateKey[ship.state] },
-  ]
-  return (
-    <div className="dash-no-scrollbar flex min-w-0 items-stretch gap-1 overflow-x-auto">
-      {phases.map((phase, i) => (
-        <React.Fragment key={phase.label}>
-          <div className="relative flex shrink-0 flex-col gap-2 border-2 border-(--cam-border) bg-(--cam-surface) px-3 pt-3 pb-2">
-            {phase.role && (
-              <span
-                aria-hidden
-                className="absolute inset-x-0 top-0 h-1"
-                style={{ backgroundColor: roleColorVar[phase.role] }}
-              />
-            )}
-            <span className="cam-label text-[10px] text-(--cam-fg)">
-              {phase.label}
-            </span>
-            <StatusBadge state={phase.state} variant="outline" />
-          </div>
-          {i < phases.length - 1 && (
-            <Connector state={phases[i + 1].state} />
-          )}
-        </React.Fragment>
-      ))}
-    </div>
-  )
-}
-
 export function Pipeline({ className }: { className?: string }) {
   return (
     <section className={cn("flex min-w-0 flex-col gap-4", className)}>
-      <SectionLabel note="issue → plan → audit → implement → review → ship">
-        Pipeline
-      </SectionLabel>
-      <FlowStrip />
+      <SectionLabel>Pipeline</SectionLabel>
       <div className="flex min-w-0 flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <OrchestratorCard />

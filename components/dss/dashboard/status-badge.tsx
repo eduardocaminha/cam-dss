@@ -8,36 +8,65 @@ import {
 import { cn } from "@/lib/utils"
 
 // Status badge (CAM_DESIGN_SYSTEM.md sections 4.5 / 8.4): a compact hard
-// rectangle carrying BOTH a symbol and its uppercase label, never color
-// alone. `solid` fills with the state color (readable fg on top); `outline`
-// keeps the surface and draws the state color as a 2px frame + the symbol,
-// for use on top of colored fills where a solid swatch would clash.
+// rectangle carrying BOTH a symbol and its uppercase label, never color alone.
+// The style is chosen per state, so the operational language is consistent
+// wherever a state shows up:
+//   running     solid acid, arrow
+//   waiting     outline (no fill), open circle - lilac
+//   recovering  outline with a dashed frame, loop - blue
+//   blocked     solid coral, hatch
+//   failed      solid coral, X inside a square
+//   completed   solid deep pine (a stamp; tilt it with `stamp`)
+// A `variant` override forces solid/outline where a surface needs uniform
+// badges (e.g. a dense table). `stamp` tilts a passed badge like an ink stamp.
 export function StatusBadge({
   state,
-  variant = "solid",
+  variant,
+  stamp = false,
   className,
 }: {
   state: StateKey
   variant?: "solid" | "outline"
+  stamp?: boolean
   className?: string
 }) {
-  const solid = variant === "solid"
+  const style =
+    variant ?? (state === "waiting" || state === "recovering" ? "outline" : "solid")
+  const solid = style === "solid"
+  const color = stateColorVar[state]
+  const dashed = state === "recovering"
+  const boxed = state === "failed"
   return (
     <span
       style={
         solid
-          ? { backgroundColor: stateColorVar[state], color: stateOnVar[state] }
-          : { borderColor: stateColorVar[state] }
+          ? { backgroundColor: color, color: stateOnVar[state] }
+          : { borderColor: color }
       }
       className={cn(
-        "cam-label inline-flex items-center gap-1.5 whitespace-nowrap px-2 py-1 text-[10px] leading-none",
+        "cam-label inline-flex items-center gap-1.5 whitespace-nowrap px-2 py-1 text-[11px] leading-none",
         !solid && "border-2 text-(--cam-fg)",
+        !solid && dashed && "border-dashed",
+        state === "completed" && stamp && "-rotate-2",
         className
       )}
     >
-      <span aria-hidden className="text-xs leading-none">
-        {stateSymbol[state]}
-      </span>
+      {boxed ? (
+        <span
+          aria-hidden
+          className="flex size-4 items-center justify-center border-2 border-current text-[10px] leading-none"
+        >
+          {stateSymbol[state]}
+        </span>
+      ) : (
+        <span
+          aria-hidden
+          className="text-xs leading-none"
+          style={solid ? undefined : { color }}
+        >
+          {stateSymbol[state]}
+        </span>
+      )}
       {stateLabel[state]}
     </span>
   )

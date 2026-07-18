@@ -34,15 +34,6 @@ export const roleColorVar: Record<RoleKey, string> = {
   ship: "var(--role-ship)",
 }
 
-export const roleOnVar: Record<RoleKey, string> = {
-  orchestrator: "var(--on-acid)",
-  planner: "var(--on-blue)",
-  auditor: "var(--on-mint)",
-  implementer: "var(--on-orange)",
-  reviewer: "var(--on-lilac)",
-  ship: "var(--on-deep-pine)",
-}
-
 // Role -> clipped-corner class (section 6.3).
 export const roleClipClass: Record<RoleKey, string> = {
   orchestrator: "cam-clip-tr-bl",
@@ -68,13 +59,13 @@ export const stateColorVar: Record<StateKey, string> = {
 }
 
 export const stateOnVar: Record<StateKey, string> = {
-  running: "var(--on-acid)",
-  waiting: "var(--on-lilac)",
-  recovering: "var(--on-blue)",
-  blocked: "var(--on-coral)",
-  failed: "var(--on-coral)",
-  completed: "var(--on-deep-pine)",
-  unknown: "var(--on-concrete)",
+  running: "var(--on-state)",
+  waiting: "var(--on-state)",
+  recovering: "var(--on-state)",
+  blocked: "var(--on-state)",
+  failed: "var(--on-state-failed)",
+  completed: "var(--on-state)",
+  unknown: "var(--on-state)",
 }
 
 export const stateSymbol: Record<StateKey, string> = {

@@ -1,10 +1,7 @@
 import { CamPanel } from "@/components/dss/dashboard/cam-panel"
 import { SectionLabel } from "@/components/dss/dashboard/section-label"
 import { StatusBadge } from "@/components/dss/dashboard/status-badge"
-import {
-  agentStateKey,
-  stateColorVar,
-} from "@/components/dss/dashboard/cam-tokens"
+import { agentStateKey } from "@/components/dss/dashboard/cam-tokens"
 import { issue, tokenRates } from "@/components/dss/dashboard/data"
 import {
   Drawer,
@@ -102,7 +99,7 @@ export function IssueCard({ className }: { className?: string }) {
       <SectionLabel note={`#${issue.number}`}>PRD</SectionLabel>
       <CamPanel className="flex min-h-0 flex-1 flex-col">
         <div className="border-b-2 border-(--cam-border) p-5">
-          <span className="cam-label text-[10px] text-(--cam-fg-muted)">
+          <span className="cam-label text-[11px] text-(--cam-fg-muted)">
             issue #{issue.number}
           </span>
           <p className="cam-display mt-1 text-xl tracking-tight text-(--cam-fg)">
@@ -116,18 +113,18 @@ export function IssueCard({ className }: { className?: string }) {
             "border-b-2 border-(--cam-border) bg-(--cam-surface-2) px-5 py-2"
           )}
         >
-          <span className="cam-label text-[10px] text-(--cam-fg-muted)">
+          <span className="cam-label text-[11px] text-(--cam-fg-muted)">
             story
           </span>
           {columnHeaders.map((text) => (
             <span
               key={text}
-              className="cam-label text-right text-[10px] text-(--cam-fg-muted)"
+              className="cam-label text-right text-[11px] text-(--cam-fg-muted)"
             >
               {text}
             </span>
           ))}
-          <span className="cam-label pl-2 text-[10px] text-(--cam-fg-muted)">
+          <span className="cam-label pl-2 text-[11px] text-(--cam-fg-muted)">
             status
           </span>
         </div>
@@ -145,19 +142,13 @@ export function IssueCard({ className }: { className?: string }) {
                   render={
                     <div
                       className={cn(
-                        "relative cursor-pointer border-b border-(--cam-line) py-2 pr-5 pl-6 text-left hover:bg-(--cam-fg)/5",
+                        "relative cursor-pointer border-b-2 border-(--cam-line) px-5 py-2.5 text-left hover:bg-(--cam-fg)/5",
                         rowGrid,
                         row.state === "queued" && "text-(--cam-fg-muted)"
                       )}
                     />
                   }
                 >
-                  {/* Role/state rail, not a full-row background (DS 8.5). */}
-                  <span
-                    aria-hidden
-                    className="absolute inset-y-0 left-0 w-1"
-                    style={{ backgroundColor: stateColorVar[state] }}
-                  />
                   <span className="flex min-w-0 items-baseline gap-2">
                     <span className="cam-mono shrink-0 text-xs text-(--cam-fg-muted)">
                       {row.id}
@@ -173,7 +164,7 @@ export function IssueCard({ className }: { className?: string }) {
                   </span>
                   <NumberCells row={row} dash={row.state === "queued"} />
                   <span className="flex justify-end pl-2">
-                    <StatusBadge state={state} variant="outline" />
+                    <StatusBadge state={state} />
                   </span>
                 </DrawerTrigger>
                 <DrawerContent>
@@ -190,12 +181,9 @@ export function IssueCard({ className }: { className?: string }) {
         </div>
         {/* Totals. */}
         <div
-          className={cn(
-            rowGrid,
-            "border-t-2 border-(--cam-border) py-3 pr-5 pl-6"
-          )}
+          className={cn(rowGrid, "border-t-2 border-(--cam-border) px-5 py-3")}
         >
-          <span className="cam-label text-[10px] text-(--cam-fg)">total</span>
+          <span className="cam-label text-[11px] text-(--cam-fg)">total</span>
           <NumberCells row={totals} className="font-semibold" />
           <span aria-hidden />
         </div>

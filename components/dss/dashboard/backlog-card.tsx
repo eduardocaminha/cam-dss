@@ -8,7 +8,7 @@ const maxWsjf = Math.max(...backlog.map((entry) => entry.wsjf))
 // rectangles for the operational tags here).
 function Tag({ children }: { children: React.ReactNode }) {
   return (
-    <span className="cam-label shrink-0 border border-(--cam-line) px-1.5 py-0.5 text-[10px] text-(--cam-fg-muted)">
+    <span className="cam-label shrink-0 border-2 border-(--cam-line) px-1.5 py-0.5 text-[11px] text-(--cam-fg-muted)">
       {children}
     </span>
   )
@@ -29,17 +29,8 @@ export function BacklogCard({ className }: { className?: string }) {
           return (
             <div
               key={entry.id}
-              className="relative flex flex-col gap-1.5 border-b border-(--cam-line) py-3 pl-4 last:border-b-0"
+              className="flex flex-col gap-1.5 border-b-2 border-(--cam-line) py-3 last:border-b-0"
             >
-              {/* Coral rail when blocked, neutral otherwise - ties to the
-                  DS blocked state language. */}
-              <span
-                aria-hidden
-                className={cn(
-                  "absolute inset-y-2 left-0 w-1",
-                  blocked ? "bg-(--state-blocked)" : "bg-(--cam-line)"
-                )}
-              />
               <div className="flex items-baseline gap-2.5">
                 <span className="cam-mono shrink-0 text-xs text-(--cam-fg-muted)">
                   {entry.id}
