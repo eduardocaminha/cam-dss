@@ -1,3 +1,5 @@
+"use client"
+
 import "./dashboard.css"
 
 import * as React from "react"
@@ -14,44 +16,21 @@ import { SectionLabel } from "@/components/dss/dashboard/section-label"
 import { SessionCard } from "@/components/dss/dashboard/session-card"
 import { StatusBadge } from "@/components/dss/dashboard/status-badge"
 import { TokensCard } from "@/components/dss/dashboard/tokens-card"
+import { useDashboardView } from "@/components/dss/dashboard/section-menu"
 import { evidence } from "@/components/dss/dashboard/data"
 
-// Staggered directional slide-in per block (DS section 10; no ambient motion).
-// min-w-0 so a block with an internal horizontal scroller (the pipeline strip,
-// the implementer rail) shrinks to the column instead of widening the page.
-function Rise({
-  i,
-  id,
-  children,
-}: {
-  i: number
-  id?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div
-      id={id}
-      className="dash-rise min-w-0 scroll-mt-24"
-      style={{ "--rise-i": i } as React.CSSProperties}
-    >
-      {children}
-    </div>
-  )
-}
-
-function EvidenceColumn() {
+function EvidenceSection() {
   const passed = evidence.filter((e) => e.result === "passed").length
   return (
-    <section className="flex h-full flex-col gap-4">
+    <section className="flex flex-col gap-4">
       <SectionLabel note={`${passed}/${evidence.length} proofs passed`}>
         Evidence
       </SectionLabel>
-      <div className="flex flex-1 flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {evidence.map((e) => (
           <EvidenceCard key={e.proof} {...e} />
         ))}
-        {/* The next gate that will produce evidence - not yet run (reviewer is
-            queued), so it's shown as pending rather than left blank. */}
+        {/* The next gate that will produce evidence - not yet run. */}
         <CamPanel className="flex items-center justify-between gap-3 p-4">
           <div className="flex flex-col gap-1">
             <span className="cam-label text-[11px] text-(--cam-fg)">
@@ -91,39 +70,26 @@ function StatsSection() {
   )
 }
 
+// One section per menu item; only the active view renders.
+const views: Record<string, React.ReactNode> = {
+  overview: <Overview />,
+  session: <SessionCard />,
+  pipeline: <Pipeline />,
+  prd: <IssueCard />,
+  evidence: <EvidenceSection />,
+  stats: <StatsSection />,
+}
+
 export default function DashboardPage() {
+  const view = useDashboardView()
   return (
-    <div
-      data-dash-root
-      className="min-h-full bg-(--cam-page) text-(--cam-fg)"
-    >
+    <div data-dash-root className="min-h-full bg-(--cam-page) text-(--cam-fg)">
       <div className="mx-auto flex max-w-[1600px] flex-col gap-10 p-5 md:p-8">
-        <Rise i={0}>
-          <CommandBar />
-        </Rise>
-        <Rise i={1} id="overview">
-          <Overview />
-        </Rise>
-        <Rise i={2} id="session">
-          <SessionCard />
-        </Rise>
-        <Rise i={3} id="pipeline">
-          <Pipeline />
-        </Rise>
-        <Rise i={4}>
-          {/* PRD table anchors, evidence column sits alongside (DS 9.1). */}
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
-            <div id="prd" className="scroll-mt-24 xl:col-span-8">
-              <IssueCard className="h-full" />
-            </div>
-            <div id="evidence" className="scroll-mt-24 xl:col-span-4">
-              <EvidenceColumn />
-            </div>
-          </div>
-        </Rise>
-        <Rise i={5} id="stats">
-          <StatsSection />
-        </Rise>
+        <CommandBar />
+        {/* key re-triggers the slide-in each time the view changes. */}
+        <div key={view} className="dash-rise min-w-0">
+          {views[view]}
+        </div>
       </div>
     </div>
   )
