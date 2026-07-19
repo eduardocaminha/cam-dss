@@ -11,12 +11,12 @@ import { cn } from "@/lib/utils"
 // rectangle carrying BOTH a symbol and its uppercase label, never color alone.
 // The style is chosen per state, so the operational language is consistent
 // wherever a state shows up:
-//   running     solid acid, arrow
-//   waiting     outline (no fill), open circle - lilac
-//   recovering  outline with a dashed frame, loop - blue
-//   blocked     solid coral, hatch
-//   failed      solid coral, X inside a square
-//   completed   solid deep pine (a stamp; tilt it with `stamp`)
+//   running     solid, arrow
+//   waiting     solid, open circle
+//   recovering  outline with a dashed frame, loop
+//   blocked     solid, hatch
+//   failed      solid, X inside a square
+//   completed   solid (a stamp; tilt it with `stamp`)
 // A `variant` override forces solid/outline where a surface needs uniform
 // badges (e.g. a dense table). `stamp` tilts a passed badge like an ink stamp.
 export function StatusBadge({
@@ -30,8 +30,7 @@ export function StatusBadge({
   stamp?: boolean
   className?: string
 }) {
-  const style =
-    variant ?? (state === "waiting" || state === "recovering" ? "outline" : "solid")
+  const style = variant ?? (state === "recovering" ? "outline" : "solid")
   const solid = style === "solid"
   const color = stateColorVar[state]
   const dashed = state === "recovering"
