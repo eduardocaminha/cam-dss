@@ -1,0 +1,333 @@
+/* Dashboard-tab-only styles for the CAM Runtime design system. Lives here
+   (not app/globals.css) because `shadcn apply` rewrites globals.css on every
+   theme change; this file is deliberately outside the Tailwind import chain so
+   a preset swap never touches it. Everything is scoped under
+   [data-dash-root] (the marker div on app/(app)/dashboard/page.tsx) so it
+   can't leak into the other tabs. */
+
+/* --------------------------------------------------------------------------
+   Tokens (CAM_DESIGN_SYSTEM.md section 13). Foundation, brand, role and state
+   colors are literal and mode-independent. The semantic *surfaces* flip
+   between light (Bone/Paper structure, Ink text) and dark (Carbon/Ink
+   structure, Paper text) - the DS is carbon-dominant, but this is a design
+   system so both modes stay first-class.
+   -------------------------------------------------------------------------- */
+[data-dash-root] {
+  /* Foundation */
+  --cam-carbon: #111111;
+  --cam-ink: #171717;
+  --cam-bone: #f3f0e7;
+  --cam-paper: #f7f5ee;
+  --cam-concrete: #cac8c0;
+  --cam-deep-pine: #12372f;
+
+  /* Brand */
+  --cam-acid: #e8ff32;
+  --cam-blue: #2f45ff;
+  --cam-orange: #ff6a3d;
+  --cam-lilac: #b99cff;
+  --cam-mint: #51d6c3;
+  --cam-coral: #ff6259;
+
+  /* Agent -> color. Appears ONLY in the square numbered block on each agent
+     card (never the card fill, name, border or a top strip). The card itself
+     stays neutral; the block number is always Ink. Orchestrator is white, so
+     its block gets an Ink border to separate from the card. */
+  --role-orchestrator: #ffffff;
+  --role-planner: #9be564;
+  --role-auditor: #ffd84d;
+  --role-implementer: #78a9ff;
+  --role-reviewer: #ff7a70;
+  --role-ship: #c8a7ff;
+
+  /* State -> color. An independent palette from the agent colors, applied only
+     in the status badge - never as a card fill. */
+  --state-running: #55d9ff;
+  --state-waiting: #d2cec3;
+  --state-recovering: #ffb45c;
+  --state-blocked: #f58acb;
+  --state-failed: #111111;
+  --state-completed: #78e0b6;
+  --state-unknown: #d2cec3;
+
+  /* Foreground on a state color: Ink on the light states, Paper on Failed. */
+  --on-state: #111111;
+  --on-state-failed: #f7f5ee;
+
+  /* Spacing scale (section 9.2) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Motion (section 10) */
+  --motion-fast: 120ms;
+  --motion-standard: 180ms;
+  --motion-slow: 280ms;
+
+  /* Border widths (section 6.4) */
+  --cam-border-primary: 2px;
+  --cam-border-secondary: 1px;
+  --cam-border-emphasis: 8px;
+
+  /* Clipped-corner cut size (section 6.3). The inner cut is the outer minus
+     ~1.2px so the 2px-inset fill layer leaves an even 2px border along the
+     diagonal, matching the straight edges (see CamPanel). */
+  --cam-cut: 18px;
+  --cam-cut-inner: 16.8px;
+
+  /* Light-mode surfaces */
+  --cam-page: var(--cam-bone);
+  --cam-surface: var(--cam-paper);
+  --cam-surface-2: var(--cam-concrete);
+  --cam-fg: var(--cam-ink);
+  /* Metadata foreground: darkened for a real >=4.5:1 read on the light
+     surfaces (no near-invisible captions). */
+  --cam-fg-muted: #5c5a51;
+  --cam-border: var(--cam-ink);
+  --cam-line: var(--cam-concrete);
+  /* The always-dark command bar keeps Paper text in both modes. */
+  --cam-carbon-fg: var(--cam-paper);
+  --cam-carbon-fg-muted: #b6b4aa;
+}
+
+:root.dark [data-dash-root] {
+  --cam-page: var(--cam-carbon);
+  --cam-surface: var(--cam-ink);
+  --cam-surface-2: #201f1d;
+  --cam-fg: var(--cam-paper);
+  --cam-fg-muted: #b0aea4;
+  /* Concrete borders on Carbon: hard contrast without the glare of pure Paper
+     lines everywhere (section 6.4: avoid hairline borders, keep contrast). */
+  --cam-border: var(--cam-concrete);
+  --cam-line: #33322e;
+  --cam-carbon-fg-muted: #b6b4aa;
+}
+
+/* Paint <body> (the scroll root) with the page fill while the dashboard is
+   mounted, so overscroll and any area past the content match. Self-gating via
+   :has() - only matches on this route. */
+body:has([data-dash-root]) {
+  background-color: #f3f0e7;
+}
+:root.dark body:has([data-dash-root]) {
+  background-color: #111111;
+}
+
+/* --------------------------------------------------------------------------
+   Typography helpers (section 5). Display = Saans, heavy, uppercase, tight.
+   Label = Saans Mono, uppercase, tracked. Mono = Saans Mono for IDs, tokens,
+   costs, durations, counters and log lines.
+   -------------------------------------------------------------------------- */
+.cam-display {
+  font-family: "Saans", var(--font-sans);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+}
+.cam-label {
+  font-family: "Saans Mono", var(--font-mono);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+.cam-mono {
+  font-family: "Saans Mono", var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   Clipped corners (section 6.3). One class per role's corner treatment; the
+   cut follows --cam-cut. clip-path slices the corner off the module - the
+   straight edges keep their border, the diagonal reads as a hard bevel.
+   -------------------------------------------------------------------------- */
+.cam-clip-tl {
+  clip-path: polygon(
+    var(--cam-cut) 0,
+    100% 0,
+    100% 100%,
+    0 100%,
+    0 var(--cam-cut)
+  );
+}
+.cam-clip-tr {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cam-cut)) 0,
+    100% var(--cam-cut),
+    100% 100%,
+    0 100%
+  );
+}
+.cam-clip-br {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--cam-cut)),
+    calc(100% - var(--cam-cut)) 100%,
+    0 100%
+  );
+}
+.cam-clip-bl {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    var(--cam-cut) 100%,
+    0 calc(100% - var(--cam-cut))
+  );
+}
+/* Orchestrator: top-right AND bottom-left. */
+.cam-clip-tr-bl {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cam-cut)) 0,
+    100% var(--cam-cut),
+    100% 100%,
+    var(--cam-cut) 100%,
+    0 calc(100% - var(--cam-cut))
+  );
+}
+
+/* Section-menu item: the top-right corner notches on hover. Both states are
+   5-point polygons (same point count) so the cut animates in smoothly; the
+   resting state is a plain rectangle (cut = 0). */
+.cam-menu-item {
+  clip-path: polygon(0 0, 100% 0, 100% 0, 100% 100%, 0 100%);
+  transition:
+    clip-path var(--motion-fast) ease-out,
+    background-color var(--motion-fast) ease-out,
+    color var(--motion-fast) ease-out;
+}
+.cam-menu-item:hover {
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+}
+
+/* --------------------------------------------------------------------------
+   Motion (section 10). Directional slide for entrances, a mechanical stamp
+   for evidence, a dashed recovery connector. No grain, glow, pulse or
+   shimmer - the DS forbids all of those.
+   -------------------------------------------------------------------------- */
+@keyframes cam-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.dash-rise {
+  animation: cam-rise var(--motion-slow) ease-out both;
+  animation-delay: calc(var(--rise-i, 0) * 60ms);
+}
+
+/* Evidence stamp: lands hard, like an ink stamp hitting paper. */
+@keyframes cam-stamp {
+  0% {
+    opacity: 0;
+    transform: scale(1.35) rotate(-4deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.96) rotate(-4deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-4deg);
+  }
+}
+.cam-stamp {
+  animation: cam-stamp var(--motion-standard) ease-out both;
+}
+
+/* Dashed recovery rail: the dashes travel along the connector (section 8.6). */
+@keyframes cam-recover {
+  to {
+    background-position: 16px 0;
+  }
+}
+.cam-recover {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--state-recovering) 0,
+    var(--state-recovering) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  background-size: 16px 100%;
+  animation: cam-recover 600ms linear infinite;
+}
+
+/* --------------------------------------------------------------------------
+   Activity ticker (section 8.7 logs/terminal surfaces). One log line visible
+   at a time, the next rising from below as the current one leaves - a
+   mechanical log reveal, not ambient motion. Fixed at 4 lines per card (see
+   the `activity` arrays in data.ts) so these keyframe offsets line up.
+   -------------------------------------------------------------------------- */
+@keyframes dash-ticker {
+  0% {
+    opacity: 0;
+    transform: translateY(40%);
+  }
+  4% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  21% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  25%,
+  100% {
+    opacity: 0;
+    transform: translateY(-40%);
+  }
+}
+.dash-ticker-line {
+  opacity: 0;
+  animation: dash-ticker var(--ticker-duration, 12s) linear infinite;
+  animation-delay: var(--ticker-delay, 0s);
+}
+
+/* Scrollable area with the scrollbar hidden. */
+.dash-no-scrollbar {
+  scrollbar-width: none;
+}
+.dash-no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Focus: high-contrast Signal Blue outline, never removed (section 12). */
+[data-dash-root] :focus-visible {
+  outline: 3px solid var(--cam-blue);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-rise,
+  .cam-stamp,
+  .cam-recover,
+  .dash-ticker-line {
+    animation: none;
+  }
+  .cam-stamp {
+    transform: rotate(-4deg);
+    opacity: 1;
+  }
+  .cam-menu-item {
+    transition: none;
+  }
+  /* The ticker's base opacity is 0 (every line waits its turn) - without the
+     animation driving it, freeze on the first line instead of showing
+     nothing. */
+  .dash-ticker-line:first-child {
+    opacity: 1;
+  }
+}
