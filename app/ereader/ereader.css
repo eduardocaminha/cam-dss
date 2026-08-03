@@ -1,0 +1,367 @@
+/* E-ink device shell for the Gateship dashboard. Everything is scoped under
+   .eink so the DS preset theme never leaks in (and vice versa). One palette,
+   no dark mode: an e-ink panel has exactly one appearance. Paper is not
+   white, ink is not black. The dashboard content itself is styled by
+   dashboard.css ([data-dash-root] tokens); this file owns the panel: paper,
+   grain, refresh flashes, the status/footer bars and the wordmark chip. */
+
+/* Saans Mono (trial, from public/fonts) — the machine-data voice. Saans
+   itself comes from the root layout's font-saans.css as --font-sans. */
+@font-face {
+  font-family: "Saans Mono";
+  src: url("/fonts/Saans-Mono/SaansMono-TRIAL-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Saans Mono";
+  src: url("/fonts/Saans-Mono/SaansMono-TRIAL-SemiBold.woff2") format("woff2");
+  font-weight: 500 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+.eink {
+  --paper: #f6f8f9;
+  --paper-hi: #fdfefe;
+  --ink: #1f2326;
+  --ink-soft: #4f565b;
+  --ink-mute: #737d82;
+  --hairline: #bcc4c8;
+  --acid: #c8ff00;
+  /* ░ hatch tone, shared by the wordmark field and the rail hover. */
+  --hatch: #dfe5e7;
+
+  font-family: var(--font-sans, "Saans"), system-ui, sans-serif;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink);
+  /* Faint ink bleed around every glyph — e-ink particles never settle into
+     perfectly crisp edges. currentColor, so muted text bleeds muted. */
+  text-shadow: 0 0 0.4px;
+  background: var(--paper);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  color-scheme: light;
+}
+
+/* Dark mode is the reader's polarity flip: the same panel, inverted. Paper
+   becomes ink and ink becomes paper; grain and flash follow the tokens. */
+:root.dark .eink {
+  --paper: #15181a;
+  --paper-hi: #23282b;
+  --ink: #e6eaec;
+  --ink-soft: #b3bcc0;
+  --ink-mute: #8a9398;
+  --hairline: #363c40;
+  --hatch: #2b3134;
+  color-scheme: dark;
+}
+
+/* Grain polarity flips with the panel. On the dark field the multiply layer
+   can only subtract, and it crushed the darkest matter (the wordmark's
+   hatched chip vanished into black), so it stands down entirely: the light
+   speckle layer becomes THE grain — particles catching the frontlight,
+   which is what you actually see on an inverted reader. */
+:root.dark .eink-grain {
+  display: none;
+}
+
+:root.dark .eink-grain-dark {
+  opacity: 0.22;
+}
+
+/* The scrollbar gets its own reserved gutter, always: without it a view that
+   overflows shifts every column sideways the moment the bar appears.
+   `scrollbar-gutter: stable` alone is not enough — it is spec'd not to apply
+   when the platform uses overlay scrollbars (measured: computed `stable`,
+   nothing reserved), so the track is also forced to stay present. Since the
+   bar is styled below it is a classic, always-visible one either way. */
+html:has(.eink) {
+  scrollbar-gutter: stable;
+  overflow-y: scroll;
+}
+
+/* A scrollbar in the panel's own vocabulary: hairline track on paper, ink
+   thumb, the same 5px radius as the chips. */
+.eink,
+.eink * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-mute) transparent;
+}
+
+html:has(.eink)::-webkit-scrollbar,
+.eink ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html:has(.eink)::-webkit-scrollbar-track,
+.eink ::-webkit-scrollbar-track {
+  background: transparent;
+  border-left: 1px solid var(--hairline);
+}
+
+html:has(.eink)::-webkit-scrollbar-thumb,
+.eink ::-webkit-scrollbar-thumb {
+  background: var(--ink-mute);
+  border: 2px solid var(--paper);
+  border-radius: 5px;
+}
+
+html:has(.eink)::-webkit-scrollbar-thumb:hover,
+.eink ::-webkit-scrollbar-thumb:hover {
+  background: var(--ink);
+}
+
+.eink ::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.eink .mut {
+  color: var(--ink-mute);
+}
+
+.dash-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Partial refresh: a freshly (re)drawn region inverts for a beat, then
+   settles. Attached to elements that remount when their content changes. */
+.eink .partial {
+  animation: eink-partial 0.28s steps(1, end);
+}
+
+@keyframes eink-partial {
+  0% {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  55% {
+    background: transparent;
+    color: inherit;
+  }
+}
+
+/* --- Paper grain ------------------------------------------------------------ */
+
+.eink-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.3;
+  /* Two layers doing DIFFERENT jobs. The fine per-pixel grain is the
+     particle texture — at a visible strength it reads as dirt, so it stays
+     near the threshold. The second layer is MURA: very large, very soft
+     blotches where the panel's white is unevenly lit. Large-scale variation
+     is what stops a light field reading as a flat fill; high-frequency noise
+     never does that, it only adds grime. */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.5 0 0 0 0 0.53 0 0 0 0 0.55 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='720'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0035 0.005' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.45 0 0 0 0 0.49 0 0 0 0 0.52 0 0 0 0.34 0'/%3E%3C/filter%3E%3Crect width='720' height='720' filter='url(%23m)'/%3E%3C/svg%3E");
+}
+
+/* Counterpart grain for the dark fills: multiply dies on black, so a second
+   layer in `screen` speckles paper-light dots over the ink areas — e-ink
+   black is packed particles, never a solid. Deliberately RANDOM and not the
+   hatch grid: on a black fill a regular pattern reads as a drawn decoration,
+   while mottling reads as the material. Held below the level where it turns
+   into static. Near-invisible over light paper. */
+.eink-grain-dark {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.22;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.93 0 0 0 0 0.95 0 0 0 0 0.96 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23d)'/%3E%3C/svg%3E");
+  /* 2x tile so the light speckle reads as visible particles, not sub-pixel dust. */
+  background-size: 320px 320px;
+}
+
+/* Ragged glyph edges: high-frequency displacement nudges every edge by a
+   fraction of a pixel, like ink settling off-grid. Applied to the dashboard
+   content only — never to the footbar, whose fixed-position flash overlay a
+   filter would capture as its containing block. */
+[data-dash-root] {
+  filter: url("#eink-rough");
+}
+
+.eink-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Frontlight unevenness: the light-guide layer of a frontlit reader never
+   spreads perfectly — edges and corners sit slightly darker than center. */
+.eink::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  pointer-events: none;
+  background: radial-gradient(
+    125% 125% at 50% 40%,
+    transparent 42%,
+    rgba(31, 35, 38, 0.09) 100%
+  );
+}
+
+/* --- Full-refresh flash ---------------------------------------------------- */
+
+/* A panel does not repaint all at once: the controller drives it ROW BY ROW,
+   so a full refresh visibly sweeps down the screen. The overlay therefore
+   does two things at the same time — the black/white waveform (the flicker
+   you know) and a band that travels top to bottom (`clip-path`, quantized
+   into steps so it advances in blocks of rows, never glides). */
+.eink-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  animation:
+    eink-refresh 0.55s steps(1, end),
+    eink-sweep 0.55s steps(6, end);
+}
+
+@keyframes eink-refresh {
+  0% {
+    background: var(--ink);
+    opacity: 1;
+  }
+  28% {
+    background: var(--paper-hi);
+    opacity: 1;
+  }
+  52% {
+    background: var(--ink);
+    opacity: 1;
+  }
+  76% {
+    background: var(--paper-hi);
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The band: starts as a slice at the top, grows to the full height, then the
+   top edge follows it down and off — the wave passing through. */
+@keyframes eink-sweep {
+  0% {
+    clip-path: inset(0 0 100% 0);
+  }
+  45% {
+    clip-path: inset(0 0 0 0);
+  }
+  55% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    clip-path: inset(100% 0 0 0);
+  }
+}
+
+/* Page-turn variant (view changes): a single brief dim — the quick flash of
+   a reader turning a page, not the full double-flicker of a boot refresh.
+   Short and partial on purpose: at full ink it read as a blackout. */
+.eink-flash-quick {
+  animation: eink-page-turn 0.1s steps(1, end);
+}
+
+@keyframes eink-page-turn {
+  0% {
+    background: var(--ink);
+    opacity: 0.45;
+  }
+  55% {
+    opacity: 0;
+  }
+}
+
+/* --- Refresh button (lives in the masthead meta cluster) ------------------- */
+
+.eink-refresh-btn {
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--ink);
+  background: none;
+  border: 1px solid var(--hairline);
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.eink-refresh-btn:active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* --- Logo (components/dss/dashboard/gateship-logo.tsx) ---------------------- */
+
+.logo-lockup {
+  display: block;
+  height: 26px;
+  /* Sizes the box to the artwork instead of to the container, so the mark
+     starts on the same column as everything below it. */
+  width: auto;
+  aspect-ratio: 15665 / 3068;
+  /* The flex column would stretch the box past the artwork; hugging it keeps
+     the element's bounds equal to what is drawn. */
+  align-self: flex-start;
+}
+
+/* Once every three minutes the mark redraws itself: the gate outline is
+   traced clockwise in twelve discrete steps (pathLength is normalised to 1,
+   so the dash maths needs no measuring), then the stair and the wordmark
+   land in one stroke. The rest of the cycle it simply sits there, drawn.
+   This is the same ritual the placeholder chip used to run — moved onto the
+   real geometry, where a line mark drawing itself actually means something. */
+.logo-gate {
+  stroke-dasharray: 1;
+  animation: logo-draw 180s steps(12, end) infinite;
+}
+
+@keyframes logo-draw {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  1.6%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.logo-fill {
+  animation: logo-settle 180s steps(1, end) infinite;
+}
+
+@keyframes logo-settle {
+  0%,
+  1.6% {
+    opacity: 0;
+  }
+  1.7%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-gate,
+  .logo-fill {
+    animation: none;
+  }
+}
