@@ -35,10 +35,11 @@ pnpm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Saans font binaries: licensed, never redistributed to third parties. The
+# Font binaries: licensed, never redistributed to third parties. The Saans
 # variable face is synced locally via scripts/sync-font.mjs from the private
-# cam-profile repo; the Mono trial faces are a Displaay trial download. Code
-# that @font-face's them is committed, the binaries never are.
-/public/fonts/SaansVF.woff2
-/public/fonts/Saans-Mono/
-/public/fonts/Saans-SemiMono/
+# cam-profile repo; the Saans Mono and Semi Mono faces are a Displaay trial
+# download, and gc-dinko-demo is a demo cut. Code that @font-face's them is
+# committed, the binaries never are. The whole directory is ignored rather
+# than one rule per face, so a face dropped in here later cannot reach a
+# public repo through an absent-minded `git add -A`.
+/public/fonts/
