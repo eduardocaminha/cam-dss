@@ -120,3 +120,11 @@ where it fails upstream, from lint entirely:
 `components/blocks/**`, `hooks/**`, `app/b/**`. Only code under
 `app/(app)`, `components/dss`, `lib`, and `scripts` is held to this
 project's own rules.
+
+`.claude/**` is ignored globally on top of that, so lint only ever covers
+the current worktree. `.claude/worktrees/*` holds full git worktree copies
+of the repo, each with its own stock `components/ui`, `components/blocks`,
+`hooks` and `app/b`; the exclusions above match by repo-relative path only,
+so without the `.claude/**` ignore a plain `eslint` run walked into every
+worktree and reported that nested stock code (~61.5k problems, 2.5k of them
+errors, against 1 pre-existing warning for the real tree).

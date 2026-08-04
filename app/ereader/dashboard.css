@@ -1,0 +1,760 @@
+/* E-ink reskin of the CAM Runtime dashboard design system. Same token
+   contract as the original dashboard.css (the components are ported
+   verbatim), but every value re-derived for the Gateship e-ink page:
+   near-white paper, ink that is never black, Gallery-3 colored-pencil tints
+   (a color e-ink gamut is tiny), and motion that only ever jumps — a panel
+   cannot tween. Scoped under [data-dash-root]; single appearance, no dark
+   mode: an e-ink panel has exactly one look. */
+
+[data-dash-root] {
+  /* Foundation, mapped onto the e-ink palette (ereader.css) */
+  --cam-carbon: #1f2326;
+  --cam-ink: #1f2326;
+  --cam-bone: #f6f8f9;
+  --cam-paper: #fdfefe;
+  --cam-concrete: #c3cbcf;
+  --cam-deep-pine: #3d5a4c;
+
+  /* Brand — pencil saturation. Acid is the one impossible color: it appears
+     only in the wordmark chip, printed on the bezel, never panel-rendered.
+     The funnel palette is quiet ink-grays with one green for shipped. */
+  --cam-acid: #c8ff00;
+  --cam-blue: #9fb0bb;
+  --cam-orange: #c2a082;
+  --cam-lilac: #ccd4d8;
+  --cam-mint: #86ac90;
+  --cam-coral: #c2a5a0;
+
+  /* Agent -> color: retired as fills — identity lives in the big outline
+     icon, so every role slot is transparent (kept for contract compat). */
+  --role-orchestrator: transparent;
+  --role-planner: transparent;
+  --role-auditor: transparent;
+  --role-implementer: transparent;
+  --role-reviewer: transparent;
+  --role-ship: transparent;
+
+  /* State -> color: text-strength muted tints for the glyph+label, each
+     over its own pale e-ink wash — the most color a Gallery 3 panel would
+     print as a chip fill. Failed inverts to ink. */
+  --state-running: #5f7d9c;
+  --state-waiting: #737d82;
+  --state-recovering: #b58a5f;
+  --state-blocked: #a5799a;
+  --state-failed: #f6f8f9;
+  --state-completed: #5c7f63;
+  --state-unknown: #737d82;
+
+  --state-running-bg: #e3ecf0;
+  --state-waiting-bg: #edf0f1;
+  --state-recovering-bg: #f1e8da;
+  --state-blocked-bg: #efe4ec;
+  --state-failed-bg: #1f2326;
+  --state-completed-bg: #e4eee8;
+  --state-unknown-bg: #edf0f1;
+
+  /* Hatch tone per state: saturated enough that the hue is unmistakable at a
+     glance, but held to the pale end of a Gallery 3 gamut — at 50% checker
+     coverage the field averages to a soft tint, so ink text still reads
+     cleanly on top. */
+  --state-running-hatch: #b9d2e0;
+  --state-waiting-hatch: #d2dade;
+  --state-recovering-hatch: #e3c8a2;
+  --state-blocked-hatch: #ddc2d6;
+  --state-failed-hatch: #1f2326;
+  --state-completed-hatch: #bcd9c8;
+  --state-unknown-hatch: #d2dade;
+
+  --on-state: #1f2326;
+  --on-state-failed: #f6f8f9;
+
+  /* Stage aliases (data.ts stageColorVar) — same family as the roles. */
+  --stage-planner: var(--role-planner);
+  --stage-auditor: var(--role-auditor);
+  --stage-impl: var(--role-implementer);
+  --stage-reviewer: var(--role-reviewer);
+  --stage-ship: var(--role-ship);
+
+  /* Ordinal grey ramp for scales (funnel stages, chart series): four solid
+     steps a 16-level panel prints as-is, no dithering needed. */
+  --ramp-1: #ccd3d6;
+  --ramp-2: #a3adb2;
+  --ramp-3: #6c757a;
+  --ramp-4: #1f2326;
+
+  /* Inline-chip height: badges and gauges (progress bars) stand exactly this
+     tall, so a status and a bar read as the same class of object. Single
+     source — never re-derive it from padding. */
+  --chip-h: 20px;
+
+  /* Spacing scale (unchanged) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Motion: e-ink durations. Nothing eases — everything steps. */
+  --motion-fast: 120ms;
+  --motion-standard: 180ms;
+  --motion-slow: 280ms;
+
+  /* Border widths: hairline everywhere — the e-book register has no heavy
+     frames. */
+  --cam-border-primary: 1px;
+  --cam-border-secondary: 1px;
+  --cam-border-emphasis: 3px;
+
+  /* Clipped corners retired: cut 0 renders every panel square, matching the
+     hairline-and-rule vocabulary of the reader pages. */
+  --cam-cut: 0px;
+  --cam-cut-inner: 0px;
+
+  /* Surfaces: one sheet of paper. The .eink wrapper paints the panel (grain
+     and all) and nothing on top of it carries its own fill — a card is a
+     hairline drawn on the same paper, not a different surface. surface-2 is
+     a faint ink wash for the rare inset that needs contrast. */
+  --cam-page: transparent;
+  --cam-surface: transparent;
+  --cam-surface-2: rgba(31, 35, 38, 0.05);
+  --cam-fg: var(--cam-ink);
+  --cam-fg-muted: #737d82;
+  /* Tile outlines read like a BOOX launcher: thin ink, clearly drawn. Inner
+     rules stay lighter. */
+  --cam-border: #565e64;
+  --cam-line: #ccd3d6;
+  --cam-carbon-fg: var(--cam-bone);
+  --cam-carbon-fg-muted: #a8b1b6;
+}
+
+/* Dark polarity: --cam-ink and --cam-bone swap roles (every derived token
+   like --cam-fg follows), the hairlines lift off the dark field, and the
+   state hatches move to dark tints so ink-on-field text stays legible. */
+:root.dark [data-dash-root] {
+  --cam-ink: #e6eaec;
+  --cam-bone: #15181a;
+  --cam-paper: #15181a;
+  --cam-concrete: #4a5155;
+  --cam-fg-muted: #8a9398;
+  --cam-border: #767e83;
+  --cam-line: #363c40;
+  --cam-surface-2: rgba(230, 234, 236, 0.07);
+  --cam-carbon-fg: #e6eaec;
+
+  --state-running-hatch: #33454f;
+  --state-waiting-hatch: #343b3f;
+  --state-recovering-hatch: #4b3d29;
+  --state-blocked-hatch: #44313e;
+  --state-completed-hatch: #2f4438;
+  --state-unknown-hatch: #343b3f;
+  --state-failed-bg: #e6eaec;
+
+  /* The ramp inverts with the panel: darkest step becomes the lightest. */
+  --ramp-1: #3a4145;
+  --ramp-2: #5c656a;
+  --ramp-3: #98a1a6;
+  --ramp-4: #e6eaec;
+}
+
+/* --------------------------------------------------------------------------
+   Type scale — the e-reader register. The WEIGHT CEILING is 500 (medium):
+   an e-ink UI builds hierarchy from size, case and tracking, never from
+   boldness — heavy sans reads like a poster, not a panel. Section headings
+   are the ONE exception at 600: they are 11.5px, and at that size the extra
+   weight buys legibility rather than shouting.
+
+     display   Saans 400        16px UPPERCASE — ALL big readouts, at the same
+                                weight as the mono values they sit with
+     heading   Saans 600        11.5px uppercase tracked (SectionLabel)
+     body      Saans 400        13.5px (base, from .eink)
+     label     Saans Mono 400   10–11px uppercase tracked (.cam-label)
+     data      Saans Mono 400   values 16px, tables/meta 11–12px (.cam-mono)
+
+   Exception: machine identifiers a human types (the repo name, the branch
+   ref) render in plain Saans forced lower-case — they are literal strings,
+   so shouting them would misrepresent what you'd type.
+   -------------------------------------------------------------------------- */
+.cam-display {
+  font-family: "Saans", var(--font-sans);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+/* Hard cap: no element inside the dashboard renders heavier than 500,
+   whatever utility class or tag it carries — except the section headings
+   (h2), which own the single 600 exception documented above. */
+[data-dash-root] .font-semibold:not(h2),
+[data-dash-root] .font-bold:not(h2),
+[data-dash-root] strong,
+[data-dash-root] b {
+  font-weight: 500;
+}
+.cam-label {
+  font-family: "Saans Mono", var(--font-mono);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+.cam-mono {
+  font-family: "Saans Mono", var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Reader-scale type: the ported cards speak in display sizes tuned for the
+   original dashboard; on the e-ink page every display readout lands on the
+   single standardized 16px, so the panel reads like a device UI, not a
+   poster. */
+[data-dash-root] .text-3xl,
+[data-dash-root] .text-xl {
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+/* --------------------------------------------------------------------------
+   Page measure: the reader's margin control (width-toggle.tsx). "page" is
+   the narrow reading column — generous paper, the default; "wide" opens the
+   measure so the PRD table shows full strings without truncating.
+   -------------------------------------------------------------------------- */
+.dash-measure {
+  max-width: 1080px;
+}
+
+:root[data-page-width="wide"] .dash-measure {
+  max-width: none;
+}
+
+/* Wide is the mode you switch to in order to READ the table, so the cells
+   stop clipping: a long story title wraps instead of ending in an ellipsis
+   (the whole point of opening the measure). */
+:root[data-page-width="wide"] .dash-measure table .truncate {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+/* The control itself: two hairline caps sharing the badge/gauge radius; the
+   selected one inverts to ink, like the rail's current item. */
+.width-toggle {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.width-toggle button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: var(--chip-h);
+  padding: 0;
+  border: 1px solid var(--cam-border);
+  border-radius: 5px;
+  background: none;
+  color: var(--cam-fg);
+  cursor: pointer;
+}
+
+.width-toggle svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+}
+
+.width-toggle button[aria-pressed="true"] {
+  background: var(--cam-ink);
+  color: var(--cam-bone);
+}
+
+/* Panel polarity (theme-toggle.tsx): same cap as the measure control. */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: var(--chip-h);
+  padding: 0;
+  border: 1px solid var(--cam-border);
+  border-radius: 5px;
+  background: none;
+  color: var(--cam-fg);
+  cursor: pointer;
+}
+
+.theme-toggle svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+}
+
+.theme-toggle[aria-pressed="true"] {
+  background: var(--cam-ink);
+  color: var(--cam-bone);
+}
+
+/* --------------------------------------------------------------------------
+   Pipeline graph (pipeline-graph.tsx): a drafted DAG on a hatched board.
+   Board and detail stack in the reading column and sit side by side once the
+   measure is opened — the same preference the header control sets.
+   -------------------------------------------------------------------------- */
+.graph-layout {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+:root[data-page-width="wide"] .graph-layout {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+}
+
+/* The board is the hatched field the nodes are drawn on — no frame: it is a
+   region of the page, not another tile. (If a frame ever comes back it has
+   to carry the gauge anatomy: frame, gap, then the hatch inset — a hatch
+   running straight into a border is the one thing this vocabulary refuses.) */
+.graph-board {
+  border-radius: 12px;
+  padding: 20px 16px;
+  /* flex, not `grid` + place-content: content-sized grid tracks collapsed the
+     svg's width:100% to its intrinsic size. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* The field spans its column, so the board and the detail card below it
+     share one edge — a board narrower than the card reads as a broken
+     grid. The drawing centres inside, capped at a scale that keeps the
+     nodes in proportion with the rest of the panel. */
+  width: 100%;
+  background-image: repeating-conic-gradient(
+    var(--hatch) 0% 25%,
+    transparent 0% 50%
+  );
+  background-size: 4px 4px;
+}
+
+/* The drawing has a designed scale: let it shrink to fit, never blow up
+   past 1:1 (a viewBox left unbounded rendered the nodes at 2.3x in the
+   stacked measure). Centred on the board when there is room to spare. */
+.graph-svg {
+  display: block;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  height: auto;
+}
+
+/* Connectors: 1px, right angles, no arrowheads — a drafted line, not a
+   flourish. Junction taps get a plotted dot. */
+.graph-wire path {
+  fill: none;
+  stroke: var(--cam-border);
+  stroke-width: 1;
+}
+
+/* Plotted square where a wire leaves a stage, and the arrowhead where it
+   arrives: direction is drawn, not implied. */
+.graph-port {
+  fill: var(--cam-paper);
+  stroke: var(--cam-border);
+  stroke-width: 1;
+}
+
+.graph-head {
+  fill: var(--cam-border);
+  stroke: none;
+}
+
+/* Nodes sit ON the hatch, so they carry the paper fill; the selected one
+   inverts to ink like the rail's current item. */
+.graph-node {
+  cursor: pointer;
+}
+
+.graph-node-box {
+  fill: var(--cam-paper);
+  stroke: var(--cam-border);
+  stroke-width: 1;
+}
+
+.graph-node-icon {
+  fill: none;
+  stroke: var(--cam-fg);
+  stroke-width: 1.6;
+}
+
+.graph-node-label {
+  font-size: 9px;
+  fill: var(--cam-fg);
+  letter-spacing: 0.06em;
+}
+
+.graph-node-state {
+  font-family: "Saans Mono", var(--font-mono);
+  font-size: 10px;
+  fill: var(--cam-fg-muted);
+}
+
+.graph-node.is-selected .graph-node-box {
+  fill: var(--cam-ink);
+}
+
+.graph-node.is-selected .graph-node-icon {
+  stroke: var(--cam-bone);
+}
+
+.graph-node.is-selected .graph-node-label,
+.graph-node.is-selected .graph-node-state {
+  fill: var(--cam-bone);
+}
+
+/* Hover: the same treatment as a rail item — the outline gains its doubled
+   bottom (here the ink sliver behind the cap) and nothing else moves. */
+.graph-node-shadow {
+  fill: transparent;
+}
+
+.graph-node:hover .graph-node-shadow,
+.graph-node:focus-visible .graph-node-shadow {
+  fill: var(--cam-border);
+}
+
+/* Press: the cap drops into the sliver it was sitting on and goes to ink. */
+.graph-node:active .graph-node-cap {
+  transform: translateY(2px);
+}
+
+.graph-node:active .graph-node-box {
+  fill: var(--cam-ink);
+}
+
+.graph-node:active .graph-node-icon {
+  stroke: var(--cam-bone);
+}
+
+.graph-node:active .graph-node-label,
+.graph-node:active .graph-node-state {
+  fill: var(--cam-bone);
+}
+
+/* Gauge (progress bar): frame + breathing gap + field, standing at the
+   shared chip height so it matches a badge exactly. */
+.eink-gauge {
+  height: var(--chip-h);
+  border: 1px solid var(--cam-border);
+  border-radius: 5px;
+  padding: 3px;
+}
+
+/* Badge: no frame (see status-badge.tsx), but the same standing height. The
+   weight lives here, not as a utility class: `.cam-label` pins 400 at the
+   same specificity and is declared earlier, so a `font-medium` on the
+   element would silently lose. */
+.eink-badge {
+  min-height: var(--chip-h);
+  font-weight: 500;
+}
+
+/* Keycap: a 1px frame whose bottom edge is doubled, so the cap reads as a
+   physical terminal key. Same radius family as the gauges and badges. */
+.kbd-key {
+  display: inline-block;
+  padding: 3px 8px 2px;
+  border: 1px solid var(--cam-border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  line-height: 1.2;
+}
+
+/* --------------------------------------------------------------------------
+   Texture vs value. The hatch belongs to FIELDS — the graph board, the
+   wordmark chip, an empty track: it says "this is a surface". A VALUE is
+   always SOLID, because the panel being drawn (Carta/Gallery, 300ppi, 16 grey
+   levels) prints a grey directly. Dithering a bar is the signature of a 1-bit
+   display, not of this one, and it reads busier while saying less — so the
+   dither family that briefly lived here is gone, and ordinal data ramps
+   through the solid greys (--ramp-1..4) instead.
+
+   `.eink-track` stays: it is the one pattern that touches data, and only as
+   the ABSENCE of fill.
+   -------------------------------------------------------------------------- */
+.eink-track {
+  background-image: repeating-conic-gradient(
+    var(--cam-line) 0% 25%,
+    transparent 0% 50%
+  );
+  background-size: 4px 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Clipped corners (unchanged geometry).
+   -------------------------------------------------------------------------- */
+.cam-clip-tl {
+  clip-path: polygon(
+    var(--cam-cut) 0,
+    100% 0,
+    100% 100%,
+    0 100%,
+    0 var(--cam-cut)
+  );
+}
+.cam-clip-tr {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cam-cut)) 0,
+    100% var(--cam-cut),
+    100% 100%,
+    0 100%
+  );
+}
+.cam-clip-br {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--cam-cut)),
+    calc(100% - var(--cam-cut)) 100%,
+    0 100%
+  );
+}
+.cam-clip-bl {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    var(--cam-cut) 100%,
+    0 calc(100% - var(--cam-cut))
+  );
+}
+.cam-clip-tr-bl {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cam-cut)) 0,
+    100% var(--cam-cut),
+    100% 100%,
+    var(--cam-cut) 100%,
+    0 calc(100% - var(--cam-cut))
+  );
+}
+
+/* Section-menu item: the corner notch appears instantly — a panel redraw,
+   not a morph. */
+.cam-menu-item {
+  clip-path: polygon(0 0, 100% 0, 100% 0, 100% 100%, 0 100%);
+}
+.cam-menu-item:hover {
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+}
+
+/* --------------------------------------------------------------------------
+   Motion, e-ink edition: every animation is a sequence of discrete states.
+   No translate-eases — a region is blank, then it is drawn.
+   -------------------------------------------------------------------------- */
+@keyframes cam-rise {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.dash-rise {
+  animation: cam-rise var(--motion-fast) steps(1, end) both;
+  animation-delay: calc(var(--rise-i, 0) * 60ms);
+}
+
+/* Evidence stamp: on e-ink the stamp is already on the page or it isn't.
+   Blank, then stamped — upright, no tilt. */
+@keyframes cam-stamp {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.cam-stamp {
+  animation: cam-stamp var(--motion-standard) steps(2, end) both;
+}
+
+/* Dashed recovery rail: the dashes jump cell by cell. */
+@keyframes cam-recover {
+  to {
+    background-position: 16px 0;
+  }
+}
+.cam-recover {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--state-recovering) 0,
+    var(--state-recovering) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  background-size: 16px 100%;
+  animation: cam-recover 600ms steps(4, end) infinite;
+}
+
+/* Activity ticker: one log line at a time. The swap is a hard cut (partial
+   refresh), never a rise. */
+@keyframes dash-ticker {
+  0% {
+    opacity: 0;
+  }
+  4% {
+    opacity: 1;
+  }
+  21% {
+    opacity: 1;
+  }
+  25%,
+  100% {
+    opacity: 0;
+  }
+}
+.dash-ticker-line {
+  opacity: 0;
+  animation: dash-ticker var(--ticker-duration, 12s) steps(1, end) infinite;
+  animation-delay: var(--ticker-delay, 0s);
+}
+
+/* --------------------------------------------------------------------------
+   Launcher rail: the vertical icon navigation of an e-reader home screen.
+   Big thin-stroke icons, tiny tracked labels, hairline separator to the
+   content; the active item inverts to an ink block — a partial-refresh
+   region, no hover morphs.
+   -------------------------------------------------------------------------- */
+.rail {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 88px;
+  min-height: 100dvh;
+  padding: 22px 12px;
+  border-right: 1px solid var(--cam-line);
+  flex-shrink: 0;
+}
+
+.rail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 4px 10px;
+  border-radius: 8px;
+  /* Transparent by default — including the doubled bottom edge — so the
+     hover outline only changes color and never shifts the layout. */
+  border: 1px solid transparent;
+  border-bottom-width: 2px;
+  color: var(--cam-fg);
+}
+
+.rail-item svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.rail-item span {
+  font-family: "Saans Mono", var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Hover: thin outline with the keycap's doubled bottom edge (a rail item IS
+   pressable) + a light ░ hatch — a hatched region, not a gray wash. */
+.rail-item:hover {
+  border-color: var(--cam-border);
+  background-image: repeating-conic-gradient(
+    var(--hatch) 0% 25%,
+    transparent 0% 50%
+  );
+  background-size: 4px 4px;
+}
+
+/* Press: the doubled bottom edge collapses to 1px and the cap drops into
+   the space it vacated — a key bottoming out. The padding gains the pixel
+   the border gave up, so the box height never changes and nothing around it
+   shifts. No transition: the press is a redraw, not a slide. */
+.rail-item:active {
+  border-color: var(--cam-border);
+  border-bottom-width: 1px;
+  padding-bottom: 11px;
+  transform: translateY(1px);
+}
+
+.rail-item-active,
+.rail-item-active:hover {
+  background: var(--cam-ink);
+  color: var(--cam-bone);
+}
+
+/* The current item is ink-filled, so its collapsing edge shows as paper. */
+.rail-item-active:active {
+  border-color: var(--cam-ink);
+}
+
+@media (max-width: 640px) {
+  .rail {
+    width: 64px;
+    padding: 14px 6px;
+  }
+}
+
+/* Scrollable area with the scrollbar hidden. */
+.dash-no-scrollbar {
+  scrollbar-width: none;
+}
+.dash-no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Focus: ink outline — there is no signal blue on this panel. Keyboard
+   only: a mouse press must not leave a ring parked on the control (that is
+   what made a clicked graph node keep two rings until you clicked away). */
+[data-dash-root] :focus-visible {
+  outline: 2px solid var(--cam-ink);
+  outline-offset: 3px;
+}
+
+[data-dash-root] :focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* The graph nodes are SVG groups: an offset outline draws a second ring
+   around the node's own rounded box and reads as a glitch, so focus is
+   stated by the node's own stroke instead. */
+.graph-node:focus,
+.graph-node:focus-visible {
+  outline: none;
+}
+
+.graph-node:focus-visible .graph-node-box {
+  stroke-width: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-rise,
+  .cam-stamp,
+  .cam-recover,
+  .dash-ticker-line {
+    animation: none;
+  }
+  .cam-stamp {
+    opacity: 1;
+  }
+  .dash-ticker-line:first-child {
+    opacity: 1;
+  }
+}

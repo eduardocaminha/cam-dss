@@ -19,6 +19,10 @@ batch, previewed, and turned into a shareable preset.
 - `app/(app)` - the shell tabs (`/components`, `/tokens`, `/blocks`,
   `/dashboard`).
 - `app/b/<block>` - each installed block, fullscreen, no shell chrome.
+- `app/ereader` - the Gateship dashboard as an e-ink panel, standalone and
+  outside the shell: paper/ink tokens, grain, refresh flashes and a polarity
+  flip for dark mode. Deliberately ignores the shadcn preset, so a preset
+  swap never touches it.
 - `components/ui` - stock shadcn components (`shadcn add --all`).
 - `components/*-example.tsx` - stock registry example items, one per
   component, rendered on `/components`.
@@ -32,6 +36,9 @@ batch, previewed, and turned into a shareable preset.
   cam-cli's loop snapshot (`DashboardData`). Fully self-scoped via its own
   `--cam-*` tokens in `dashboard.css` (not the shadcn preset), so a preset
   swap never touches it.
+- `components/dss/ereader` - the e-ink panel's own components. A fork of the
+  set above, restyled for `/ereader` and dependent on its CSS, so it is
+  namespaced per route rather than shared.
 - `lib/blocks.ts` - the 27-block manifest grouped by family.
 - `lib/theme-actions.ts` - the theme menu's Server Action: runs `shadcn
   apply` for real on every dimension change. See `CLAUDE.md` § Theme menu.

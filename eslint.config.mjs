@@ -14,6 +14,12 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Claude Code's scratch space. `.claude/worktrees/*` holds full git
+    // worktree copies of this repo, each with its own stock components/ui,
+    // components/blocks, hooks and app/b. The exclusions below only match
+    // by repo-relative path, so without this every worktree's stock code
+    // gets linted. Lint always covers the current worktree only.
+    ".claude/**",
     // Stock/vendored shadcn code: components/ui (shadcn add --all),
     // components/*-example.tsx + example.tsx (registry example items),
     // components/blocks/** and app/b/** (registry blocks), hooks/** (stock
