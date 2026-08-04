@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { type RoleKey } from "@/components/dss/dashboard/cam-tokens"
+import { type RoleKey } from "@/components/dss/ereader/cam-tokens"
 import { cn } from "@/lib/utils"
 
 // The one modular surface for the whole dashboard (CAM_DESIGN_SYSTEM.md

@@ -1,10 +1,10 @@
-import { CamPanel } from "@/components/dss/dashboard/cam-panel"
+import { CamPanel } from "@/components/dss/ereader/cam-panel"
 import {
   stateColorVar,
   stateLabel,
   stateOnVar,
   stateSymbol,
-} from "@/components/dss/dashboard/cam-tokens"
+} from "@/components/dss/ereader/cam-tokens"
 import { cn } from "@/lib/utils"
 
 // Evidence card (CAM_DESIGN_SYSTEM.md sections 2.5 / 8.2): more formal than an

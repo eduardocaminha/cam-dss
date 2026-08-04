@@ -2,8 +2,8 @@
 
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 
-import { CamPanel } from "@/components/dss/dashboard/cam-panel"
-import { tokensPerIteration } from "@/components/dss/dashboard/data"
+import { CamPanel } from "@/components/dss/ereader/cam-panel"
+import { tokensPerIteration } from "@/components/dss/ereader/data"
 import {
   ChartContainer,
   ChartLegend,

@@ -309,7 +309,7 @@ html:has(.eink)::-webkit-scrollbar-thumb:hover,
   color: var(--paper);
 }
 
-/* --- Logo (components/dss/dashboard/gateship-logo.tsx) ---------------------- */
+/* --- Logo (components/dss/ereader/gateship-logo.tsx) ---------------------- */
 
 .logo-lockup {
   display: block;

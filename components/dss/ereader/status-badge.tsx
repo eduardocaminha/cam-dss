@@ -4,7 +4,7 @@ import {
   stateLabel,
   stateSymbol,
   type StateKey,
-} from "@/components/dss/dashboard/cam-tokens"
+} from "@/components/dss/ereader/cam-tokens"
 import { cn } from "@/lib/utils"
 
 // Status, e-reader register: glyph + uppercase label in INK over a field

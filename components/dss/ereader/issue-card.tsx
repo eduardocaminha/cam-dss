@@ -11,11 +11,11 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
-import { CamPanel } from "@/components/dss/dashboard/cam-panel"
-import { SectionLabel } from "@/components/dss/dashboard/section-label"
-import { StatusBadge } from "@/components/dss/dashboard/status-badge"
-import { agentStateKey } from "@/components/dss/dashboard/cam-tokens"
-import { issue, tokenRates } from "@/components/dss/dashboard/data"
+import { CamPanel } from "@/components/dss/ereader/cam-panel"
+import { SectionLabel } from "@/components/dss/ereader/section-label"
+import { StatusBadge } from "@/components/dss/ereader/status-badge"
+import { agentStateKey } from "@/components/dss/ereader/cam-tokens"
+import { issue, tokenRates } from "@/components/dss/ereader/data"
 import {
   Table,
   TableBody,

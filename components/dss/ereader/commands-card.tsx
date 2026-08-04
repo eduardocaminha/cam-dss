@@ -1,6 +1,6 @@
-import { CamPanel } from "@/components/dss/dashboard/cam-panel"
-import { roleColorVar } from "@/components/dss/dashboard/cam-tokens"
-import { commandsFlow } from "@/components/dss/dashboard/data"
+import { CamPanel } from "@/components/dss/ereader/cam-panel"
+import { roleColorVar } from "@/components/dss/ereader/cam-tokens"
+import { commandsFlow } from "@/components/dss/ereader/data"
 import { cn } from "@/lib/utils"
 
 // Each command feeds a pipeline stage; the square node takes that stage's role
