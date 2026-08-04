@@ -70,12 +70,16 @@ function StatsSection() {
   )
 }
 
-// One section per menu item; only the active view renders.
+// One view per menu item; only the active one renders. Session carries both
+// Session and PRD. Overview is not here - it renders on every page (below).
 const views: Record<string, React.ReactNode> = {
-  overview: <Overview />,
-  session: <SessionCard />,
+  session: (
+    <div className="flex flex-col gap-10">
+      <SessionCard />
+      <IssueCard />
+    </div>
+  ),
   pipeline: <Pipeline />,
-  prd: <IssueCard />,
   evidence: <EvidenceSection />,
   stats: <StatsSection />,
 }
@@ -86,6 +90,8 @@ export default function DashboardPage() {
     <div data-dash-root className="min-h-full bg-(--cam-page) text-(--cam-fg)">
       <div className="mx-auto flex max-w-[1600px] flex-col gap-10 p-5 md:p-8">
         <CommandBar />
+        {/* Overview is persistent - it shows above every view. */}
+        <Overview />
         {/* key re-triggers the slide-in each time the view changes. */}
         <div key={view} className="dash-rise min-w-0">
           {views[view]}

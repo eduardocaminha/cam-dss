@@ -6,7 +6,7 @@
 // always agree. This tab observes the loop; it does not control it.
 
 export const project = {
-  name: "cam-cli",
+  name: "cam-runtime",
   tokens: "48.2M",
   cost: "$1,284",
   time: "86h 12m",
@@ -61,6 +61,7 @@ export type AgentState = "done" | "active" | "queued"
 
 export const orchestrator = {
   model: "opus",
+  effort: "high",
   uptime: "5h 07m",
   tokens: "96k",
   cost: "$1.88",
@@ -82,6 +83,7 @@ export type PipelineStage = {
   label: string
   state: AgentState
   model: string
+  effort: string
   tokens: string
   cost: string
   time: string
@@ -94,6 +96,7 @@ export const planner: PipelineStage = {
   label: "Planner",
   state: "done",
   model: "sonnet",
+  effort: "high",
   tokens: "88k",
   cost: "$1.06",
   time: "12m",
@@ -111,6 +114,7 @@ export const auditor: PipelineStage = {
   label: "Auditor",
   state: "done",
   model: "sonnet",
+  effort: "medium",
   tokens: "42k",
   cost: "$0.50",
   time: "6m",
@@ -124,11 +128,11 @@ export const auditor: PipelineStage = {
 }
 
 export const implementers: (PipelineStage & { n: number; story: string })[] = [
-  { key: "implementer", label: "Implementer 1", n: 1, story: "US-001..008", state: "done", model: "sonnet", tokens: "442k", cost: "$5.30", time: "2h 39m", note: "8 stories · gates ✓✓", activity: ["implementing US-001..008", "running pnpm typecheck", "running pnpm lint", "gates ✓✓ - ready for review"] },
-  { key: "implementer", label: "Implementer 2", n: 2, story: "US-009", state: "active", model: "sonnet", tokens: "41k", cost: "$0.49", time: "18m", note: "editing commands-card.tsx", activity: ["editing components/dss/dashboard/session-card.tsx", "wiring the FlowBar component", "running pnpm typecheck", "verifying in browser preview"] },
-  { key: "implementer", label: "Implementer 3", n: 3, story: "US-010", state: "queued", model: "sonnet", tokens: "0", cost: "$0.00", time: "-", note: "waiting dispatch", activity: ["waiting dispatch", "waiting dispatch", "waiting dispatch", "waiting dispatch"] },
-  { key: "implementer", label: "Implementer 4", n: 4, story: "US-011", state: "queued", model: "sonnet", tokens: "0", cost: "$0.00", time: "-", note: "waiting dispatch", activity: ["waiting dispatch", "waiting dispatch", "waiting dispatch", "waiting dispatch"] },
-  { key: "implementer", label: "Implementer 5", n: 5, story: "US-012", state: "queued", model: "sonnet", tokens: "0", cost: "$0.00", time: "-", note: "waiting dispatch", activity: ["waiting dispatch", "waiting dispatch", "waiting dispatch", "waiting dispatch"] },
+  { key: "implementer", label: "Implementer 1", n: 1, story: "US-001..008", state: "done", model: "sonnet", effort: "medium", tokens: "442k", cost: "$5.30", time: "2h 39m", note: "8 stories · gates ✓✓", activity: ["implementing US-001..008", "running pnpm typecheck", "running pnpm lint", "gates ✓✓ - ready for review"] },
+  { key: "implementer", label: "Implementer 2", n: 2, story: "US-009", state: "active", model: "sonnet", effort: "medium", tokens: "41k", cost: "$0.49", time: "18m", note: "editing commands-card.tsx", activity: ["editing components/dss/dashboard/session-card.tsx", "wiring the FlowBar component", "running pnpm typecheck", "verifying in browser preview"] },
+  { key: "implementer", label: "Implementer 3", n: 3, story: "US-010", state: "queued", model: "sonnet", effort: "medium", tokens: "0", cost: "$0.00", time: "-", note: "waiting dispatch", activity: ["waiting dispatch", "waiting dispatch", "waiting dispatch", "waiting dispatch"] },
+  { key: "implementer", label: "Implementer 4", n: 4, story: "US-011", state: "queued", model: "sonnet", effort: "medium", tokens: "0", cost: "$0.00", time: "-", note: "waiting dispatch", activity: ["waiting dispatch", "waiting dispatch", "waiting dispatch", "waiting dispatch"] },
+  { key: "implementer", label: "Implementer 5", n: 5, story: "US-012", state: "queued", model: "sonnet", effort: "medium", tokens: "0", cost: "$0.00", time: "-", note: "waiting dispatch", activity: ["waiting dispatch", "waiting dispatch", "waiting dispatch", "waiting dispatch"] },
 ]
 
 export const reviewer: PipelineStage = {
@@ -136,6 +140,7 @@ export const reviewer: PipelineStage = {
   label: "Reviewer",
   state: "queued",
   model: "sonnet",
+  effort: "high",
   tokens: "0",
   cost: "$0.00",
   time: "-",
@@ -148,6 +153,7 @@ export const ship: PipelineStage = {
   label: "Ship",
   state: "queued",
   model: "sonnet",
+  effort: "low",
   tokens: "0",
   cost: "$0.00",
   time: "-",

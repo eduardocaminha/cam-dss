@@ -4,12 +4,12 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-// The dashboard sections, one per menu item / view.
+// The dashboard sections, one per menu item / view. Overview is not a menu
+// item - it renders on every page. The Session view carries both Session and
+// PRD, so PRD is not a separate item either.
 export const sections = [
-  { id: "overview", label: "Overview" },
   { id: "session", label: "Session" },
   { id: "pipeline", label: "Pipeline" },
-  { id: "prd", label: "PRD" },
   { id: "evidence", label: "Evidence" },
   { id: "stats", label: "Stats" },
 ] as const
@@ -17,14 +17,14 @@ export const sections = [
 export type ViewId = (typeof sections)[number]["id"]
 
 // The active view comes from the URL hash (#session, ...), so each section has
-// its own URL and the back/forward buttons work. Defaults to overview.
+// its own URL and the back/forward buttons work. Defaults to session.
 export function useDashboardView(): ViewId {
-  const [view, setView] = React.useState<ViewId>("overview")
+  const [view, setView] = React.useState<ViewId>("session")
   React.useEffect(() => {
     const read = () => {
       const hash = window.location.hash.slice(1)
       setView(
-        (sections.some((s) => s.id === hash) ? hash : "overview") as ViewId
+        (sections.some((s) => s.id === hash) ? hash : "session") as ViewId
       )
     }
     read()

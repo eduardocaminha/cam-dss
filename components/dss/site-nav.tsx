@@ -10,7 +10,6 @@ const links = [
   { href: "/tokens", label: "Tokens" },
   { href: "/blocks", label: "Blocks" },
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/diario", label: "Diário" },
 ]
 
 export function SiteNav() {

@@ -16,7 +16,8 @@ batch, previewed, and turned into a shareable preset.
 
 ## Structure
 
-- `app/(app)` - the two-tab shell (`/components`, `/blocks`).
+- `app/(app)` - the shell tabs (`/components`, `/tokens`, `/blocks`,
+  `/dashboard`).
 - `app/b/<block>` - each installed block, fullscreen, no shell chrome.
 - `components/ui` - stock shadcn components (`shadcn add --all`).
 - `components/*-example.tsx` - stock registry example items, one per
@@ -24,6 +25,13 @@ batch, previewed, and turned into a shareable preset.
 - `components/blocks/<block>` - stock block components, namespaced per block
   to avoid filename collisions (see `scripts/add-block.mjs`).
 - `components/dss` - the app's own glue code (nav, block card, theme menu).
+- `components/dss/dashboard` - the `/dashboard` tab: a single-page,
+  asymmetric control panel in the CAM Runtime industrial design system
+  (flat hard-edged modules, clipped corners per agent role, Acid Pop
+  identity, mono machine state, evidence cards), showing a static mock of
+  cam-cli's loop snapshot (`DashboardData`). Fully self-scoped via its own
+  `--cam-*` tokens in `dashboard.css` (not the shadcn preset), so a preset
+  swap never touches it.
 - `lib/blocks.ts` - the 27-block manifest grouped by family.
 - `lib/theme-actions.ts` - the theme menu's Server Action: runs `shadcn
   apply` for real on every dimension change. See `CLAUDE.md` § Theme menu.

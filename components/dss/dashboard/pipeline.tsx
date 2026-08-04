@@ -60,13 +60,11 @@ function StageHeader({
   role,
   number,
   name,
-  model,
   state,
 }: {
   role: RoleKey
   number: string | number
   name: string
-  model: string
   state: StateKey
 }) {
   return (
@@ -78,14 +76,15 @@ function StageHeader({
         >
           {number}
         </span>
-        <div className="flex min-w-0 flex-col gap-1">
-          <span className="flex min-w-0 items-center gap-1.5 text-(--cam-fg)">
-            <RoleIcon role={role} size={16} className="shrink-0" />
-            <span className="cam-label truncate text-[12px]">{name}</span>
-          </span>
-          <span className="cam-mono text-[11px] text-(--cam-fg-muted)">
-            {model}
-          </span>
+        {/* Name + icon in their own bordered box, filled with the same role
+            colour as the number square - a separate rectangle giving the
+            subagent name stronger emphasis. Black text over the agent colour. */}
+        <div
+          style={{ backgroundColor: roleColorVar[role] }}
+          className="flex h-10 min-w-0 items-center gap-1.5 border-2 border-(--cam-ink) px-2.5 text-(--cam-ink)"
+        >
+          <RoleIcon role={role} size={16} className="shrink-0" />
+          <span className="cam-label truncate text-[12px]">{name}</span>
         </div>
       </div>
       <StatusBadge
@@ -125,7 +124,6 @@ function StageCard({
           role={stage.key}
           number={number}
           name={name}
-          model={stage.model}
           state={state}
         />
         {stage.story && (
@@ -142,7 +140,8 @@ function StageCard({
         )}
       </div>
       <span className="cam-mono border-t-2 border-(--cam-line) pt-3 text-[11px] text-(--cam-fg-muted)">
-        {stage.tokens} · {stage.cost} · {stage.time}
+        {stage.model} · {stage.effort} · {stage.tokens} · {stage.cost} ·{" "}
+        {stage.time}
       </span>
     </CamPanel>
   )
@@ -162,7 +161,6 @@ function OrchestratorCard({ className }: { className?: string }) {
           role="orchestrator"
           number={0}
           name="Orchestrator"
-          model={orchestrator.model}
           state="running"
         />
         <span className="cam-display text-xl tracking-tight text-(--cam-fg)">
@@ -171,6 +169,7 @@ function OrchestratorCard({ className }: { className?: string }) {
         <ActivityTicker lines={orchestrator.activity} />
       </div>
       <span className="cam-mono border-t-2 border-(--cam-line) pt-3 text-[11px] text-(--cam-fg-muted)">
+        {orchestrator.model} · {orchestrator.effort} ·{" "}
         {orchestrator.dispatches} dispatches · {orchestrator.tokens} ·{" "}
         {orchestrator.cost} · up {orchestrator.uptime}
       </span>

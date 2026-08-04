@@ -15,21 +15,39 @@ const metrics = [
   { label: "cycles", value: String(project.cycles) },
 ]
 
-// The acid brand mark with its own 2px border that follows the clipped corner
-// (two layers: border-color base + inset acid fill, same trick as CamPanel).
+// The acid brand mark as a self-contained SVG: the clipped-corner box is two
+// polygons (ink border + inset acid fill), and "CAM" is the Dinko glyphs as
+// outline paths (font units, extracted from gc-dinko-demo.regular.ttf), so the
+// mark scales anywhere without the Dinko font loaded. Geometry and the glyph
+// transform were measured off the previous CSS logo, so it renders identically.
+// Fills use the same CSS vars, keeping it theme-aware.
 function CamLogo() {
   return (
-    <span
-      style={{ "--cam-cut": "12px" } as React.CSSProperties}
-      className="cam-clip-br inline-block bg-(--cam-border) p-0.5"
+    <svg
+      viewBox="0 0 131.031 52.195"
+      width="131.031"
+      height="52.195"
+      role="img"
+      aria-label="CAM"
+      className="block"
     >
-      <span
-        style={{ "--cam-cut": "10.8px" } as React.CSSProperties}
-        className="cam-clip-br cam-display block bg-(--cam-acid) px-4 py-2 text-4xl leading-none font-bold text-(--cam-carbon)"
-      >
-        CAM
-      </span>
-    </span>
+      {/* ink border box, bottom-right corner cut 12px */}
+      <polygon
+        points="0,0 131.031,0 131.031,40.195 119.031,52.195 0,52.195"
+        fill="var(--cam-border)"
+      />
+      {/* acid fill, inset 3px, corner cut 10.2px so the border stays uniform */}
+      <polygon
+        points="3,3 128.031,3 128.031,38.995 117.831,49.195 3,49.195"
+        fill="var(--cam-acid)"
+      />
+      {/* "CAM" (Dinko outline): translate to baseline, scale + flip y */}
+      <path
+        transform="translate(18.470 37.1) scale(0.0353189 -0.0353189)"
+        fill="var(--cam-carbon)"
+        d="M765.0 290Q760.0 145 666.0 67.5Q572.0 -10 390.0 -10Q202.0 -10 108.5 71.5Q15.0 153 15.0 306V344Q15.0 497 108.5 578.5Q202.0 660 390.0 660Q572.0 660 666.0 582.5Q760.0 505 765.0 360H503.0Q490.0 450 390.0 450Q275.0 450 275.0 333V318Q275.0 200 390.0 200Q490.0 200 503.0 290ZM1380.0 650 1680.0 0H1410.0L1364.0 100H1126.0L1080.0 0H810.0L1110.0 650ZM1295.0 250 1245.0 358 1195.0 250ZM1730.0 650H1980.0L2190.0 211L2399.0 650H2649.0V0H2399.0V255L2289.0 1L2290.0 0H2089.0L2090.0 1L1980.0 255V0H1730.0Z"
+      />
+    </svg>
   )
 }
 
@@ -58,7 +76,7 @@ export function CommandBar({ className }: { className?: string }) {
         <CamLogo />
         <div className="flex flex-col gap-1">
           <span className="cam-label text-[11px] text-(--cam-fg-muted)">
-            project
+            project repository
           </span>
           <span className="text-lg leading-none font-semibold text-(--cam-fg)">
             {project.name}
