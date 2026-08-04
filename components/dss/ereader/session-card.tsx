@@ -1,15 +1,15 @@
 import { GitBranchIcon } from "lucide-react"
 
-import { CamPanel } from "@/components/dss/dashboard/cam-panel"
-import { SectionLabel } from "@/components/dss/dashboard/section-label"
-import { StatusBadge } from "@/components/dss/dashboard/status-badge"
-import { agentStateKey } from "@/components/dss/dashboard/cam-tokens"
+import { CamPanel } from "@/components/dss/ereader/cam-panel"
+import { SectionLabel } from "@/components/dss/ereader/section-label"
+import { StatusBadge } from "@/components/dss/ereader/status-badge"
+import { agentStateKey } from "@/components/dss/ereader/cam-tokens"
 import {
   currentStage,
   session,
   stageVerb,
   tokenRates,
-} from "@/components/dss/dashboard/data"
+} from "@/components/dss/ereader/data"
 import { cn } from "@/lib/utils"
 
 const fmtTokens = (k: number) =>

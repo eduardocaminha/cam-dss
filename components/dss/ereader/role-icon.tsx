@@ -1,4 +1,4 @@
-import type { RoleKey } from "@/components/dss/dashboard/cam-tokens"
+import type { RoleKey } from "@/components/dss/ereader/cam-tokens"
 
 // Proprietary square-grid role marks (CAM_DESIGN_SYSTEM.md section 7.2):
 // modular, right-angled, one-color (currentColor), legible from 16px up. Built

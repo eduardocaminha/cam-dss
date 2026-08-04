@@ -2,23 +2,22 @@
 
 import * as React from "react"
 
-import { RoleIcon } from "@/components/dss/dashboard/role-icon"
+import { RoleIcon } from "@/components/dss/ereader/role-icon"
 import {
   agentStateKey,
   stateSymbol,
   type RoleKey,
   type StateKey,
-} from "@/components/dss/dashboard/cam-tokens"
+} from "@/components/dss/ereader/cam-tokens"
 import {
   auditor,
   implementers,
-  orchestrator,
   planner,
   reviewer,
   ship,
   type PipelineStage,
-} from "@/components/dss/dashboard/data"
-import { OrchestratorCard, StageCard } from "@/components/dss/dashboard/pipeline"
+} from "@/components/dss/ereader/data"
+import { OrchestratorCard, StageCard } from "@/components/dss/ereader/pipeline"
 import { useArrowNav } from "@/app/ereader/keyboard-nav"
 import { cn } from "@/lib/utils"
 

@@ -2,16 +2,16 @@
 
 import * as React from "react"
 
-import { CamPanel } from "@/components/dss/dashboard/cam-panel"
-import { DragScroll } from "@/components/dss/dashboard/drag-scroll"
-import { RoleIcon } from "@/components/dss/dashboard/role-icon"
-import { SectionLabel } from "@/components/dss/dashboard/section-label"
-import { StatusBadge } from "@/components/dss/dashboard/status-badge"
+import { CamPanel } from "@/components/dss/ereader/cam-panel"
+import { DragScroll } from "@/components/dss/ereader/drag-scroll"
+import { RoleIcon } from "@/components/dss/ereader/role-icon"
+import { SectionLabel } from "@/components/dss/ereader/section-label"
+import { StatusBadge } from "@/components/dss/ereader/status-badge"
 import {
   agentStateKey,
   type RoleKey,
   type StateKey,
-} from "@/components/dss/dashboard/cam-tokens"
+} from "@/components/dss/ereader/cam-tokens"
 import {
   auditor,
   implementers,
@@ -20,8 +20,8 @@ import {
   reviewer,
   ship,
   type PipelineStage,
-} from "@/components/dss/dashboard/data"
-import { PipelineGraph } from "@/components/dss/dashboard/pipeline-graph"
+} from "@/components/dss/ereader/data"
+import { PipelineGraph } from "@/components/dss/ereader/pipeline-graph"
 import { useArrowNav } from "@/app/ereader/keyboard-nav"
 import { cn } from "@/lib/utils"
 

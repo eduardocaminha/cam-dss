@@ -1,9 +1,9 @@
 import * as React from "react"
 
-import { project } from "@/components/dss/dashboard/data"
-import { CamPanel } from "@/components/dss/dashboard/cam-panel"
-import { GateshipLockup } from "@/components/dss/dashboard/gateship-logo"
-import { SectionLabel } from "@/components/dss/dashboard/section-label"
+import { project } from "@/components/dss/ereader/data"
+import { CamPanel } from "@/components/dss/ereader/cam-panel"
+import { GateshipLockup } from "@/components/dss/ereader/gateship-logo"
+import { SectionLabel } from "@/components/dss/ereader/section-label"
 import { cn } from "@/lib/utils"
 
 // Global project readouts, moved into their own Overview section.
@@ -15,7 +15,7 @@ const metrics = [
   { label: "cycles", value: String(project.cycles) },
 ]
 
-// The masthead carries the real mark now (components/dss/dashboard/
+// The masthead carries the real mark now (components/dss/ereader/
 // gateship-logo.tsx): gate, stair and wordmark, in ink. The placeholder chip
 // it replaces — text on a hatched field, with a border that drew itself and
 // broke a corner — is gone; the ritual moved onto the logo's own outline,

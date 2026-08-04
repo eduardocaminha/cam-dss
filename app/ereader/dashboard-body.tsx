@@ -2,23 +2,23 @@
 
 import * as React from "react"
 
-import { BacklogCard } from "@/components/dss/dashboard/backlog-card"
-import { CamPanel } from "@/components/dss/dashboard/cam-panel"
-import { CommandBar, Overview } from "@/components/dss/dashboard/project-hero"
-import { CommandsCard } from "@/components/dss/dashboard/commands-card"
-import { EvidenceCard } from "@/components/dss/dashboard/evidence-card"
-import { FunnelCard } from "@/components/dss/dashboard/funnel-card"
-import { IssueCard } from "@/components/dss/dashboard/issue-card"
-import { Pipeline } from "@/components/dss/dashboard/pipeline"
-import { SectionLabel } from "@/components/dss/dashboard/section-label"
-import { SessionCard } from "@/components/dss/dashboard/session-card"
-import { StatusBadge } from "@/components/dss/dashboard/status-badge"
-import { TokensCard } from "@/components/dss/dashboard/tokens-card"
+import { BacklogCard } from "@/components/dss/ereader/backlog-card"
+import { CamPanel } from "@/components/dss/ereader/cam-panel"
+import { CommandBar, Overview } from "@/components/dss/ereader/project-hero"
+import { CommandsCard } from "@/components/dss/ereader/commands-card"
+import { EvidenceCard } from "@/components/dss/ereader/evidence-card"
+import { FunnelCard } from "@/components/dss/ereader/funnel-card"
+import { IssueCard } from "@/components/dss/ereader/issue-card"
+import { Pipeline } from "@/components/dss/ereader/pipeline"
+import { SectionLabel } from "@/components/dss/ereader/section-label"
+import { SessionCard } from "@/components/dss/ereader/session-card"
+import { StatusBadge } from "@/components/dss/ereader/status-badge"
+import { TokensCard } from "@/components/dss/ereader/tokens-card"
 import {
   SectionRail,
   useDashboardView,
-} from "@/components/dss/dashboard/section-menu"
-import { evidence } from "@/components/dss/dashboard/data"
+} from "@/components/dss/ereader/section-menu"
+import { evidence } from "@/components/dss/ereader/data"
 
 import { Clock, DateStamp } from "./live"
 import { flashScreen, RefreshOverlay } from "./refresh-control"

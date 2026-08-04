@@ -5,7 +5,7 @@
 // treatments (CAM_DESIGN_SYSTEM.md sections 4.4, 4.5, 6.3, 7.3), so no
 // component has to restate them.
 
-import type { AgentState } from "@/components/dss/dashboard/data"
+import type { AgentState } from "@/components/dss/ereader/data"
 
 export type RoleKey =
   | "orchestrator"

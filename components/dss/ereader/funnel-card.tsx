@@ -1,5 +1,5 @@
-import { CamPanel } from "@/components/dss/dashboard/cam-panel"
-import { funnel } from "@/components/dss/dashboard/data"
+import { CamPanel } from "@/components/dss/ereader/cam-panel"
+import { funnel } from "@/components/dss/ereader/data"
 import { cn } from "@/lib/utils"
 
 // IssueStage is ordinal (idea -> specified -> planned -> shipped), so the bars

@@ -1,5 +1,5 @@
-import { CamPanel } from "@/components/dss/dashboard/cam-panel"
-import { backlog } from "@/components/dss/dashboard/data"
+import { CamPanel } from "@/components/dss/ereader/cam-panel"
+import { backlog } from "@/components/dss/ereader/data"
 import { cn } from "@/lib/utils"
 
 const maxWsjf = Math.max(...backlog.map((entry) => entry.wsjf))
