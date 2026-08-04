@@ -6,7 +6,84 @@
   font-display: swap;
 }
 
+/* Saans Semi Mono (static TRIAL cuts, weights mapped to the ones the app
+   uses). Chosen over Saans Mono as the mono face: semi-proportional reads
+   better at text sizes and as the heading face, and its digits align via
+   the tnum feature (tabular-nums) where columns need it. Saans Mono stays
+   available under public/fonts if the strict-mono look wins later. */
+@font-face {
+  font-family: "Saans Semi Mono";
+  src: url("/fonts/Saans-SemiMono/SaansSemiMono-TRIAL-Regular.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Saans Semi Mono";
+  src: url("/fonts/Saans-SemiMono/SaansSemiMono-TRIAL-Medium.woff2")
+    format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Saans Semi Mono";
+  src: url("/fonts/Saans-SemiMono/SaansSemiMono-TRIAL-SemiBold.woff2")
+    format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Saans Semi Mono";
+  src: url("/fonts/Saans-SemiMono/SaansSemiMono-TRIAL-Bold.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Saans Mono (strict cut, not semi-proportional): dashboard card titles
+   only, referenced directly by family name where needed - not wired up
+   as --font-mono, which stays Saans Semi Mono for everything else. */
+@font-face {
+  font-family: "Saans Mono";
+  src: url("/fonts/Saans-Mono/SaansMono-TRIAL-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Dinko: display face for the CAM logo mark (single Regular cut). */
+@font-face {
+  font-family: "Dinko";
+  src: url("/fonts/gc-dinko-demo.regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Galmuri (pixel face, 11px grid cut): the RUNTIME sub-label under the CAM
+   mark - retro pixel accent paired with the Dinko display. */
+@font-face {
+  font-family: "Galmuri";
+  src: url("/fonts/Galmuri11.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Galmuri";
+  src: url("/fonts/Galmuri11-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --font-sans: "Saans", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, sans-serif;
+  --font-mono: "Saans Semi Mono", ui-monospace, SFMono-Regular, Menlo,
+    monospace;
 }
