@@ -4,25 +4,28 @@ The current design system preset, resolved from this project via `pnpm preset:re
 
 | Dimension | Value |
 |---|---|
-| code | `b2vg` |
-| style | nova |
-| baseColor | neutral |
-| theme | neutral |
-| chartColor | neutral |
+| code | `beEgoHMO` |
+| style | luma |
+| baseColor | zinc |
+| theme | zinc |
+| chartColor | zinc |
 | iconLibrary | lucide |
-| font | geist-mono (misreported, see caveat below - actual body font is Saans) |
+| font | geist-mono (misreported, see caveat below - actual fonts are Saans + Saans Semi Mono) |
 | fontHeading | inherit |
 | radius | default |
 | menuAccent | subtle |
 | menuColor | default |
 
-URL: https://ui.shadcn.com/create?preset=b2vg
+URL: https://ui.shadcn.com/create?preset=beEgoHMO
 
 Base (not encoded in the preset code, set separately in `components.json`): `base`.
 
-Last updated: 2026-07-04 (initial scaffold defaults, not yet customized).
+Last updated: 2026-08-04 (style switched to luma for the stats dashboard tab;
+base color, theme and chart color all moved to zinc together, which the
+registry requires of achromatic values; mono font dogfooded to Saans Semi
+Mono).
 
-**Caveat - font detection is unreliable after the Saans dogfood:** `preset resolve`/`preset:open` infer the `font`/`fontHeading` dimensions by scanning the codebase for `next/font/google` imports. Since Saans is applied via `font-saans.css` (a plain CSS `@font-face`, not a `next/font` import) rather than the catalog mechanism, the resolver can't see it - it instead picks up `Geist_Mono` (kept in `app/layout.tsx` for code blocks) and misreports it as the primary font. Verified end-to-end: opening `https://ui.shadcn.com/create?preset=b2vg` in a real browser does load this project's actual style/baseColor/theme/chartColor/iconLibrary/radius correctly, but shows "Geist Mono" for both Heading and Font instead of Saans. Round-trip works; font dimension specifically does not reflect reality for this project.
+**Caveat - font detection is unreliable after the Saans dogfood:** `preset resolve`/`preset:open` infer the `font`/`fontHeading` dimensions by scanning the codebase for `next/font/google` imports. Both faces are applied via `font-saans.css` (plain CSS `@font-face`: Saans variable as `--font-sans`, Saans Semi Mono static cuts as `--font-mono`, which luma also uses for headings) rather than the catalog mechanism, so the resolver never sees them. It reports `geist-mono` instead, the one real `next/font/google` import left in `app/layout.tsx` for code blocks. The style/baseColor/theme/chartColor/iconLibrary/radius dimensions still round-trip correctly; font specifically does not reflect reality for this project. Saans Mono (strict monospace) also lives in `public/fonts`, used only for dashboard card titles.
 
 ## Editing loop
 
